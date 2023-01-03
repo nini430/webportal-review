@@ -31,6 +31,14 @@ export default (server)=>{
        socket.on("unreact_comment",({userId,id,oldEmoji})=>{
         io.except(userId).emit("receive_unreact",{id,oldEmoji,userId});
        })
+
+       socket.on("like_review",({sender})=>{
+            io.except(sender).emit("receive_like");
+       })
+
+       socket.on("rate_review",({sender})=>{
+        io.except(sender).emit("receive_rate");
+       })
         
     })  
 

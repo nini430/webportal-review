@@ -26,6 +26,7 @@ $modes: (
 }
 
 
+
    
 body {
   font-family:"Roboto",sans-serif;
@@ -106,6 +107,7 @@ body {
   @include themify($modes) {
        
       max-width:100%;
+      
       .slick-prev {
         left:0;
         z-index:10;
@@ -123,6 +125,7 @@ body {
         min-height:400px!important;
         color:themed("color");
         transition:all 0.4s ease;
+        margin-right:30px;
 
         
 
@@ -233,24 +236,52 @@ body {
     z-index:10;
     @include shadow;
 
+    @include tablet {
+      padding:10px 30px;
+    }
+
     .navbar-brand {
       display: flex;
       align-items: center;
       width: 400px;
+      
+
+      @include mobile {
+        width:250px;
+      }
+
+      @include tablet {
+        width:250px;
+      }
       h1 {
         font-size: 24px;
         margin-bottom: 0;
         color: themed("color");
+
+        @include mobile {
+          font-size:18px;
+        }
+
+        @include tablet {
+          font-size:18px;
+        }
       }
     }
 
+    .input-group {
+      @include mobile {
+        display: none;
+      }
+    }
     .searchInput {
-      width: 300px;
+      min-width: 400px;
       box-shadow: none;
 
       &:focus {
         border: 1px solid #444;
       }
+
+      
     }
 
     .icon {
@@ -263,6 +294,13 @@ body {
       align-items: center;
       justify-content: flex-end;
       gap: 20px;
+
+      @include mobile {
+        display: none;
+      }
+      @include tablet {
+        display: none;
+      }
 
       .signin {
         background:themed("bgSoft");
@@ -772,6 +810,17 @@ body {
     gap:30px;
     align-items: center;
     padding:30px 30px;
+
+    @include mobile {
+      flex-direction: column;
+    }
+    @include tablet {
+      flex-direction: column;
+
+      .table-responsive {
+        max-width:800px!important;
+      }
+    }
   
 
     .left {
@@ -780,6 +829,10 @@ body {
       flex-direction: column;
       gap:20px;
       flex:1;
+
+      @include tablet {
+        flex-direction: row;
+      }
       .leftTop {
         padding:20px;
         border-radius:10px;
@@ -787,6 +840,11 @@ body {
         background:themed("bg");
         display: flex;
         flex-direction: column;
+
+        @include mobile {
+          width:300px;
+          align-self:center;
+        }
 
         img {
           align-self:center;
@@ -821,6 +879,11 @@ body {
             display: flex;
             gap:10px;
 
+            @include mobile {
+              flex-direction: column;
+              align-items: center;
+            }
+
             .mini-review {
               padding:20px;
               border-radius:10px;
@@ -830,8 +893,10 @@ body {
               @include shadow;
               background:themed("bg");
               color:themed("color");
-              max-width:200px;
-              max-height:300px;
+              width:200px;
+              height:300px;
+
+              
 
              
 
@@ -867,12 +932,25 @@ body {
       flex-direction: column;
 
       
-      select {
-        width:200px;
+      
+
+      .table-responsive-sm {
+        @include mobile {
+          max-width:460px;
+        }
+      }
+
+      input {
+
+        @include mobile {
+          max-width:300px;
+        }
       }
 
       table {
         border: 1px solid themed("color");
+
+        
 
         .slick-prev {
           left:0;

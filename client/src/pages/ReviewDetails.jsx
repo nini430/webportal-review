@@ -48,30 +48,7 @@ const ReviewDetails = () => {
   },[dispatch,currentUser.uuid])  
   
  
-  useEffect(()=>{
-    if(socket?.current) {
-      socket?.current?.on("receive_message",(data)=>{
-        console.log("iuhu")
-        dispatch(getComments({comments:[data],append:true}))
-      })
-       
-    socket?.current?.on("receive_delete",({id})=>{
-      dispatch(deleteComment({id}));
-    })
-    socket?.current?.on("receive_edit",({id,text})=>{
-      dispatch(editComment({id,text}))
-    })
-    socket?.current?.on("receive_react",({updated,id,data,oldEmoji})=>{
-      dispatch(reactComment({id,updated,data,oldEmoji}))
-    })
 
-    socket?.current?.on("receive_unreact",({id,userId,oldEmoji})=>{
-      dispatch(unreactComment({id,userId,oldEmoji}))
-    })
-    }
-   
-
-  },[])
     
 useEffect(()=>{
   const handleClickOutside=e=>{
@@ -85,7 +62,7 @@ useEffect(()=>{
   }
 },[pickerRef])
 
-useQuery(["review"],()=>{
+const {refetch}=useQuery(["review"],()=>{
     return axiosFetch.get(`/reviews/${id}?userId=${currentUser.uuid}`)
 },{
   onSuccess:({data})=>{
@@ -94,6 +71,39 @@ useQuery(["review"],()=>{
     
   },cacheTime:0
 })
+
+useEffect(()=>{
+  if(socket?.current) {
+    socket?.current?.on("receive_message",(data)=>{
+      console.log("iuhu")
+      dispatch(getComments({comments:[data],append:true}))
+    })
+     
+  socket?.current?.on("receive_delete",({id})=>{
+    dispatch(deleteComment({id}));
+  })
+  socket?.current?.on("receive_edit",({id,text})=>{
+    dispatch(editComment({id,text}))
+  })
+  socket?.current?.on("receive_react",({updated,id,data,oldEmoji})=>{
+    dispatch(reactComment({id,updated,data,oldEmoji}))
+  })
+
+  socket?.current?.on("receive_unreact",({id,userId,oldEmoji})=>{
+    dispatch(unreactComment({id,userId,oldEmoji}))
+  })
+  }
+
+  socket?.current?.on("receive_like",()=>{
+    refetch();
+  })
+
+  socket?.current?.on("receive_rate",()=>{
+    refetch()
+  })
+ 
+
+},[])
 
 useEffect(()=>{
   if(commentRef?.current) {
@@ -122,6 +132,7 @@ const rateReview=useMutation((rating)=>{
    return axiosFetch.post(`/reviews/rate/${id}`,{rating},{withCredentials:true})
 },{
   onSuccess:({data})=>{
+    socket?.current?.emit("rate_review",{sender:currentUser.uuid})
     console.log(data);
     client.invalidateQueries(["review"])
   }
@@ -131,6 +142,7 @@ const likeReview=useMutation(()=>{
     return axiosFetch.put(`/reviews/like/${id}`,{},{withCredentials:true})
 },{
   onSuccess:({data})=>{
+    socket?.current.emit("like_review",{sender:currentUser.uuid});
     console.log(data);
     client.invalidateQueries(["review"])
   }

@@ -8,7 +8,7 @@ import { getUserProfile } from '../redux/slices/profile'
 import {ClipLoader} from "react-spinners"
 import moment from "moment"
 import Slider from "react-slick"
-import {useTable,useSortBy,useGlobalFilter,useFilters,usePagination} from "react-table"
+import {useTable,useSortBy,useGlobalFilter,useFilters,usePagination,useRowSelect} from "react-table"
 import {TiArrowSortedDown,TiArrowSortedUp,TiArrowUnsorted,TiEdit} from "react-icons/ti"
 import axios from "axios"
 
@@ -16,6 +16,7 @@ import {keys} from "../env"
 import {COLUMNS} from "../columns"
 import { useTranslation } from 'react-i18next'
 import { ColumnFilterInput, GlobalFilterInput } from '../components'
+import { SelectCheckbox } from '../components'
 
 
 const Profile = () => {
@@ -39,6 +40,7 @@ const Profile = () => {
 
   const dispatch=useDispatch();
   const {userId}=useParams()
+ 
 
   const upload=async()=>{
     const formData=new FormData();
@@ -74,7 +76,20 @@ const Profile = () => {
       
     })
   })  
-  const {getTableProps,getTableBodyProps,page,nextPage,gotoPage,pageCount,previousPage,canNextPage,canPreviousPage,prepareRow,headerGroups,state,setGlobalFilter,pageOptions}=useTable({columns,data,defaultColumn,initialState:{pageSize:6}},useFilters,useGlobalFilter,useSortBy,usePagination);
+  const {getTableProps,rows,getTableBodyProps,page,nextPage,gotoPage,pageCount,previousPage,canNextPage,canPreviousPage,prepareRow,headerGroups,state,setGlobalFilter,pageOptions,selectedFlatRows}=useTable({columns,data,defaultColumn,initialState:{pageSize:6}},useFilters,useGlobalFilter,useSortBy,usePagination,useRowSelect,hooks=>(hooks.visibleColumns.push(columns=>(
+    [
+        {
+          id:"selection",
+          Header:({getToggleAllRowsSelectedProps})=>(<SelectCheckbox {...getToggleAllRowsSelectedProps()}/>),
+          Cell:(({row})=>(<SelectCheckbox {...row.getToggleRowSelectedProps()}/>)),
+          disableSortBy:true,
+          disableFilters:true
+        },
+        ...columns
+      ]
+    )))
+  );
+  console.log(selectedFlatRows)
   const {globalFilter,pageIndex}=state;
  
   if(!userProfile) return <ClipLoader size={150}/>
@@ -129,7 +144,7 @@ const Profile = () => {
         <h1>{userProfile?.firstName}'s Reviews</h1>
         <hr/>
         <GlobalFilterInput filter={globalFilter} setFilter={setGlobalFilter} />
-          <Table bordered striped hovered {...getTableProps()}>
+          <Table responsive bordered striped hovered {...getTableProps()}>
             <thead>
              {headerGroups.map(headerGroup=>(
               <tr {...headerGroup.getHeaderGroupProps()}>

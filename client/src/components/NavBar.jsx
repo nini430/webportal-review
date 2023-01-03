@@ -58,7 +58,7 @@ const NavBar = () => {
         
       </Navbar.Brand>
       </Link>
-      <Nav className='d-flex gap-5 w-100'>
+      <Nav className='d-flex gap-2 w-100'>
         <Nav.Item className='d-flex gap-1 align-items-center'>
           <BsFillSunFill className='icon' size={20}/>
               <ReactSwitch onChange={()=>dispatch(changeTheme())} onColor="#eee" checkedIcon={false} uncheckedIcon={false} checked={!isLight}/>

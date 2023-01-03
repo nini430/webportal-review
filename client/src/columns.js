@@ -1,6 +1,7 @@
 import { getText } from "./utils/getText";
 import Slider from "react-slick";
 import moment from "moment";
+import { keys } from "./env";
 
 
 
@@ -41,7 +42,7 @@ export const COLUMNS = [
       value.length ? (
         <Slider slidesToShow={1} autoplay autoplaySpeed={2000}>
         {value.length?value.map((val) => (
-          <img className="miniImg" src={val.img} alt="" />
+          <img className="miniImg" src={val.isDefault?keys.PF+val.img:val.img} alt="" />
         )):"No Images"}
       </Slider>
       ):"No Images"
