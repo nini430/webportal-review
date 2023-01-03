@@ -96,9 +96,15 @@ User.init({
         allowNull:false,
         set(value) {
             const profUpdated=this.getDataValue("profUpdated");
+            const role=this.getDataValue("role");
             if(!value&&!profUpdated) {
                 const gender=this.getDataValue("gender");
-        this.setDataValue("profileImg",gender==="male"?"manAvatar.png":"womanAvatar.jpg");
+                if(role==="user") {
+                    this.setDataValue("profileImg",gender==="male"?"manAvatar.png":"womanAvatar.jpg");
+                }else{
+                    this.setDataValue("profileImg","admin.jpg");
+                }
+        
             }else{
                 this.setDataValue("profileImg",value);
             }

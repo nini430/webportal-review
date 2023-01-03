@@ -4,6 +4,15 @@ import sequelize from "../config/Database.js";
 
 import { Review, ReviewImage, User, Rating,Like, Comment } from "../models/index.js";
 
+
+export const getAllReviews=async(req,res)=>{
+  try{
+    const reviews=await Review.findAll({include:[{model:User,attributes:["firstName","lastName","profileImg","profUpdated","uuid","id"]},{model:ReviewImage}]});
+    return res.status(StatusCodes.OK).json(reviews);
+  }catch(err) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
+  }
+}
 export const getReviews = async (req, res) => {
   const { attribute } = req.query;
   try {

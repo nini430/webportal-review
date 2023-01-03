@@ -25,6 +25,11 @@ $modes: (
  }
 }
 
+@mixin pc {
+  @media (max-width:1024px) {
+    @content;
+  }
+}
 
 
    
@@ -33,7 +38,33 @@ body {
 } 
 
     
-   
+table {
+  
+
+  
+
+  .slick-prev {
+    left:0;
+    z-index:10;
+  }
+  .slick-next {
+    right:0;
+  }
+
+ th,td {
+    max-width:300px;
+    max-height:200px;
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  th {
+    position:relative;
+    min-height:100px;
+    white-space: nowrap;
+  }
+  
+} 
     
  
 h1 {
@@ -55,6 +86,13 @@ hr {
   color:red;
   font-size:12px;
 }
+
+.miniImg {
+  max-width:200px;
+  height:100px;
+  object-fit: cover;
+}
+
 
 
 
@@ -127,6 +165,10 @@ body {
         transition:all 0.4s ease;
         margin-right:30px;
 
+        @include mobile {
+          width:300px;
+        }
+
         
 
         .card-header {
@@ -137,6 +179,10 @@ body {
           width:100%;
           height:200px;
           object-fit:cover;
+
+          @include mobile {
+            height:120px;
+          }
         }
 
         .card-footer {
@@ -148,6 +194,17 @@ body {
               border-radius:50%;
               object-fit:cover;
               margin-right:5px;
+
+              @include mobile {
+                width:20px;
+                height:20px;
+              }
+            }
+
+            span,p {
+              @include mobile {
+                font-size:14px;
+              }
             }
           }
         }
@@ -199,7 +256,11 @@ body {
       border-radius:20px;
       padding:20px;
       overflow-y:auto;
-  
+      
+      @include mobile {
+        width:300px;
+        max-width:600px;
+      }
       h2 {
         text-align:center;
         color:themed("color");
@@ -240,11 +301,18 @@ body {
       padding:10px 30px;
     }
 
+    @include mobile {
+      padding:10px 5px; 
+    }
+
     .navbar-brand {
       display: flex;
       align-items: center;
       width: 400px;
       
+      @include pc {
+        width:260px;
+      }
 
       @include mobile {
         width:250px;
@@ -258,6 +326,10 @@ body {
         margin-bottom: 0;
         color: themed("color");
 
+        @include pc {
+          font-size:20px;
+        }
+
         @include mobile {
           font-size:18px;
         }
@@ -269,8 +341,17 @@ body {
     }
 
     .input-group {
+      display: flex!important;
+      flex-wrap:nowrap!important;
+     
+
+
+
+      @include tablet {
+        display: none!important;
+      }
       @include mobile {
-        display: none;
+        display: none!important;
       }
     }
     .searchInput {
@@ -387,6 +468,10 @@ body {
     background:themed("bgSoft");
     display: flex;
     justify-content: center;
+
+    @include mobile {
+      padding:20px 30px;
+    }
 
     form {
       @extend .form;
@@ -579,6 +664,11 @@ body {
       justify-content: center;
       gap:40px;
 
+      @include mobile {
+        display: flex;
+        flex-direction: column;
+      }
+
       hr {
         border:1px solid themed("color");      }
 
@@ -618,10 +708,20 @@ body {
           width:600px;
           align-self:center;
           height:300px;
+
+          @include mobile {
+            width:300px;
+            height:100px;
+            
+          }
           img {
             width:100%;
             height:300px;
             object-fit: cover;
+
+            @include mobile {
+              height:100px;
+            }
           }
         }
 
@@ -665,6 +765,8 @@ body {
             background:themed("bgSoft");
 
           }
+
+          
           
           .comment {
             display: flex;
@@ -769,6 +871,15 @@ body {
           }
   }
         }
+
+        .reacts {
+          @include mobile {
+            display: flex;
+          flex-direction: column;
+          align-items: center;
+          }
+          
+        }
         
 
   .addComment {
@@ -811,14 +922,26 @@ body {
     align-items: center;
     padding:30px 30px;
 
-    @include mobile {
+    @include pc {
       flex-direction: column;
     }
+
+    
     @include tablet {
       flex-direction: column;
 
       .table-responsive {
+        min-width:400px!important;
         max-width:800px!important;
+      }
+    }
+
+    @include mobile {
+      flex-direction: column;
+      
+      .table-responsive {
+        max-width:400px!important;
+      min-width:200px!important;
       }
     }
   
@@ -830,8 +953,15 @@ body {
       gap:20px;
       flex:1;
 
-      @include tablet {
-        flex-direction: row;
+      @include pc {
+        flex-direction:row;
+      }
+
+     @include tablet {
+      flex-direction: column;
+     }
+      @include mobile {
+        flex-direction: column;
       }
       .leftTop {
         padding:20px;
@@ -840,6 +970,12 @@ body {
         background:themed("bg");
         display: flex;
         flex-direction: column;
+
+        
+
+        @include tablet {
+          width:300px;
+        }
 
         @include mobile {
           width:300px;
@@ -947,37 +1083,7 @@ body {
         }
       }
 
-      table {
-        border: 1px solid themed("color");
-
-        
-
-        .slick-prev {
-          left:0;
-          z-index:10;
-        }
-        .slick-next {
-          right:0;
-        }
-
-       th,td {
-          max-width:300px;
-          max-height:200px;
-          text-align: center;
-          vertical-align: middle;
-        }
-
-        th {
-          position:relative;
-          min-height:100px;
-          white-space: nowrap;
-        }
-        .miniImg {
-          max-width:200px;
-          height:100px;
-          object-fit: cover;
-        }
-      }
+     
 
       .bottom {
         
@@ -1135,3 +1241,89 @@ body {
   max-height:700px!important;
 }
 
+.admin {
+  @include themify($modes) {
+    min-height:calc(100vh - 70px);
+    background:themed("bgSoft");
+    color:themed("color");
+
+    .sidebar {
+      position:sticky;
+      top:70px;
+      width:200px;
+      @include shadow;
+      background:themed("bg");
+      min-height:calc(100vh - 70px);
+      padding:20px;
+      
+
+      .adminProfile {
+        img {
+          width:80px;
+          height:80px;
+        }
+      }
+
+      .requests {
+        width:20px;
+        height:20px;
+        background:themed("color");
+        color:themed("bg");
+        border-radius:50%;
+        top:10px;
+        right:0;
+        
+      }
+
+      button {
+        position:absolute;
+        bottom:20px;
+        background:themed("bgSoft");
+        color:themed("color");
+        border:none;
+
+      }
+    }
+
+    .requestPage {
+      
+      .request {
+        width:500px;
+        justify-content: space-between;
+        img {
+          width:60px;
+          height:60px;
+          object-fit: cover;
+          margin-right:10px;
+        }
+
+        .icons {
+          button {
+            background:themed("bg");
+            border:none;
+          }
+          
+        }
+      }
+    }
+
+    table {
+      border:1px solid themed("color");
+
+      
+    }
+
+    .bottom {
+      input {
+        width:50px;
+      }
+      button {
+        background:themed("bg");
+        color:themed("color");
+        border:none;
+      }
+    }
+  }
+
+
+}

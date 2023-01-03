@@ -8,7 +8,6 @@ import { getUserProfile } from '../redux/slices/profile'
 import {ClipLoader} from "react-spinners"
 import moment from "moment"
 import Slider from "react-slick"
-import {useTable,useSortBy,useGlobalFilter,useFilters,usePagination,useRowSelect} from "react-table"
 import {TiArrowSortedDown,TiArrowSortedUp,TiArrowUnsorted,TiEdit} from "react-icons/ti"
 import axios from "axios"
 
@@ -16,7 +15,7 @@ import {keys} from "../env"
 import {COLUMNS} from "../columns"
 import { useTranslation } from 'react-i18next'
 import { ColumnFilterInput, GlobalFilterInput } from '../components'
-import { SelectCheckbox } from '../components'
+import { TableComponent } from '../components'
 
 
 const Profile = () => {
@@ -76,21 +75,7 @@ const Profile = () => {
       
     })
   })  
-  const {getTableProps,rows,getTableBodyProps,page,nextPage,gotoPage,pageCount,previousPage,canNextPage,canPreviousPage,prepareRow,headerGroups,state,setGlobalFilter,pageOptions,selectedFlatRows}=useTable({columns,data,defaultColumn,initialState:{pageSize:6}},useFilters,useGlobalFilter,useSortBy,usePagination,useRowSelect,hooks=>(hooks.visibleColumns.push(columns=>(
-    [
-        {
-          id:"selection",
-          Header:({getToggleAllRowsSelectedProps})=>(<SelectCheckbox {...getToggleAllRowsSelectedProps()}/>),
-          Cell:(({row})=>(<SelectCheckbox {...row.getToggleRowSelectedProps()}/>)),
-          disableSortBy:true,
-          disableFilters:true
-        },
-        ...columns
-      ]
-    )))
-  );
-  console.log(selectedFlatRows)
-  const {globalFilter,pageIndex}=state;
+ 
  
   if(!userProfile) return <ClipLoader size={150}/>
   
@@ -143,52 +128,9 @@ const Profile = () => {
       <div className="right">
         <h1>{userProfile?.firstName}'s Reviews</h1>
         <hr/>
-        <GlobalFilterInput filter={globalFilter} setFilter={setGlobalFilter} />
-          <Table responsive bordered striped hovered {...getTableProps()}>
-            <thead>
-             {headerGroups.map(headerGroup=>(
-              <tr {...headerGroup.getHeaderGroupProps()}>
-                {headerGroup.headers.map(header=>(
-                  <th {...header.getHeaderProps(header.getSortByToggleProps())}><p>{t(header.render("Header"))}</p>
-                 <span>{!header.disableSortBy? (header.isSorted? (header.isSortedDesc?<TiArrowSortedDown/>:<TiArrowSortedUp/>):<TiArrowUnsorted/>):""}</span>
-                  <div>{header.canFilter?header.render("Filter"):null}</div>
-                  </th>
-                  
-                ))}
-              </tr>
-             ))}
-                </thead>
-                <tbody {...getTableBodyProps()}>
-                  {page.map(row=>{
-                    prepareRow(row);
-                    return (
-                      <tr>
-                        {row.cells.map(cell=>(
-                          <td>{cell.render("Cell")}</td>
-                        ))}
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              
-            
-          </Table>
-          <div className="bottom">
-            <div className="d-flex align-items-center">
-            <Button disabled={!canPreviousPage} onClick={()=>gotoPage(0)}>{`<<`}</Button>
-          <Button disabled={!canPreviousPage} onClick={()=>previousPage()}>Previous</Button>
-          <span><Form.Control type="number" defaultValue={1} onChange={(e)=>{
-            const pageIndex=+e.target.value-1||0;
-            gotoPage(pageIndex);
-          }}/></span>
-          <Button disabled={!canNextPage} onClick={()=>nextPage()}>Next</Button>
-          <Button disabled={!canNextPage} onClick={()=>gotoPage(pageCount-1)}>{`>>`}</Button>
-            </div>
-           
-          <p className='text-center'>Page <strong>{pageIndex+1} </strong>Of {pageOptions.length}</p>
-          </div>
-          
+        <TableComponent data={userProfile?.reviews} columns={COLUMNS}/>
         </div>
+       
    
     </div>
   )

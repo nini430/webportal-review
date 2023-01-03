@@ -1,9 +1,11 @@
 import express from "express"
 
 const router=express.Router();
-import {addReview,  deleteReview,  editReview,   getReview, getReviews, getTags, likeReview, rateReview, searchThroughApp} from "../controllers/review.js"
+import {addReview,  deleteReview,  editReview,   getAllReviews,   getReview, getReviews, getTags, likeReview, rateReview, searchThroughApp} from "../controllers/review.js"
 import {checkAuth} from "../middleware/checkAuth.js"
-      
+import {adminOnly} from "../middleware/adminOnly.js"
+
+router.get("/all",checkAuth,adminOnly,getAllReviews);
 router.get("/",getReviews);
 router.get("/tags",checkAuth,getTags);
 router.post("/",checkAuth,addReview);

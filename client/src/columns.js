@@ -2,12 +2,13 @@ import { getText } from "./utils/getText";
 import Slider from "react-slick";
 import moment from "moment";
 import { keys } from "./env";
+import { Link } from "react-router-dom";
 
 
 
 export const COLUMNS = [
   {
-    Header: "review_name",
+    Header: "Review Name",
     accessor: "reviewName",
   },
   {
@@ -83,4 +84,66 @@ export const COLUMNS = [
     accessor: "createdAt",
     Cell: ({ value }) => moment(value).format("L"),
   },
+  {
+    Header:"Review Link",
+    accessor:"uuid",
+    Cell:({value})=><Link to={`/review/${value}`}>Link</Link>
+  }
 ];
+
+export const userColumns=[
+  {
+    Header:"First Name",
+    accessor:"firstName",
+
+  },
+  {
+    Header:"Last Name",
+    accessor:"lastName",
+
+  },
+  {
+    Header:"email",
+    accessor:"email",
+
+  },
+  {
+    Header:"profile Image",
+    accessor:"profileImg",
+
+  },
+  {
+    Header:"Rating Number",
+    accessor:"ratingNumber",
+
+  },
+  {
+    Header:"Number of Reviews Posted",
+    accessor:"numberOfReviews",
+
+  },
+  {
+    Header:"Role",
+    accessor:"role",
+
+  },
+  {
+    Header:"Member Since",
+    accessor:"createdAt",
+
+  },
+  {
+    Header:"Profile Link",
+    accessor:"uuid",
+    Cell:({value})=><Link  to={`/profile/${value}`}>Link To Profile</Link>
+  }
+]
+
+export const adminReviewColumns=[
+  ...COLUMNS,
+  {
+    Header:'Created By',
+    accessor:"user",
+    Cell:({value})=><p>{value.firstName} {value.lastName}</p>
+  }
+]

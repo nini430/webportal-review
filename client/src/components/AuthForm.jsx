@@ -38,7 +38,8 @@ const AuthForm = ({ isRegister, admin }) => {
 
   useEffect(()=>{
     if(currentUser) {
-      navigate("/");
+      if(currentUser.role==="user") navigate("/");
+      if(currentUser.role==="admin") navigate("/admin")
     }
   },[currentUser,navigate])
 

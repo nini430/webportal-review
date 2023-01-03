@@ -5,6 +5,8 @@ import {User,Review,ReviewImage} from "../models/index.js"
 import { json } from "sequelize"
 
 
+
+
 export const getUser=async(req,res)=>{
     try{
         const user=await User.findOne({where:{uuid:req.params.id},attributes:{exclude:["password"]},include:[{model:Review,include:[{model:ReviewImage}]}]})

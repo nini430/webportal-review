@@ -1,6 +1,6 @@
 import {createBrowserRouter,Outlet,RouterProvider} from "react-router-dom"
-import { NavBar } from "./components"
-import {Profile,Auth,CreateReview,Home,ReviewDetails,Settings, PasswordReset, SearchResults} from "./pages"
+import { AdminContent, Admins, NavBar, Requests, Reviews, SideBar, Users } from "./components"
+import {Profile,Auth,CreateReview,Home,ReviewDetails,Settings, PasswordReset, SearchResults, AdminPage} from "./pages"
 import {useSelector} from "react-redux"
 
 const Layout=()=>{
@@ -9,6 +9,15 @@ const Layout=()=>{
       <NavBar/>
       <Outlet/>
     </>
+  )
+}
+
+const AdminLayout=()=>{
+  return (
+    <div className="admin d-flex gap-4">
+    <SideBar/>
+    <Outlet/>
+    </div>
   )
 }
 const router=createBrowserRouter([
@@ -55,6 +64,32 @@ const router=createBrowserRouter([
         {
           path:"/search",
           element:<SearchResults/>
+        },
+        {
+          path:"/admin",
+          element:<AdminLayout/>,
+          children:[
+            {
+       
+              path:"/admin/*",
+              element:<Users/>,
+              index:true
+            },
+            {
+              path:"/admin/reviews",
+              element:<Reviews/>
+            },
+            {
+              path:"/admin/admins",
+              element:<Admins/>
+            },
+            {
+              path:"/admin/requests",
+              element:<Requests/>
+          
+            },
+          ]
+          
         }
       ]
     }

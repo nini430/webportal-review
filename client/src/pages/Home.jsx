@@ -44,7 +44,7 @@ const Home = () => {
 
   return (
     <div className='home'>
-     {!currentUser.bio && <Bio/> } 
+     {/* {(!currentUser.bio&& currentUser.role==="user" )&& <Bio/> }  */}
       <div className="d-flex flex-column">
       <h1>{t("latest_reviews")}</h1>
       <hr/>

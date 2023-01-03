@@ -227,8 +227,8 @@ const emojiClickHandler=(emoji)=>{
        
         <div ref={commentRef} className="commSection">
         <div  className=" d-flex gap-2 align-items-center">
-        {likesCount!==0 && <OverlayTrigger placement="bottom" overlay={<Tooltip>Click to see who liked this post</Tooltip>}><span onClick={()=>setLikeModal(true)} role="button">{likesCount}</span></OverlayTrigger>} {liked? <AiFillHeart onClick={()=>likeReview.mutate()} role="button" size={20}/> : <AiOutlineHeart onClick={()=>likeReview.mutate()} role="button"  size={20}/>}   
-          <span >{commentsCount}</span> <AiOutlineComment role="button"  size={20}/>
+        {likesCount!==0 && <OverlayTrigger placement="bottom" overlay={<Tooltip>Click to see who liked this post</Tooltip>}><span className='d-flex align-items-center' onClick={()=>setLikeModal(true)} role="button">{likesCount}</span></OverlayTrigger>} {liked? <AiFillHeart onClick={()=>likeReview.mutate()} role="button" size={20}/> : <AiOutlineHeart onClick={()=>likeReview.mutate()} role="button"  size={20}/>}   
+          <span className='d-flex align-items-center' >{commentsCount}</span> <AiOutlineComment role="button"  size={20}/>
         </div>
         <hr/>
         <div ref={commentRef}  className="comments">
@@ -262,9 +262,9 @@ const emojiClickHandler=(emoji)=>{
       
         
 
-        <div className="d-flex justify-content-between w-100 mt-2">
-          <div className="d-flex align-items-center gap-3">
-            {likesCount!==0 && <OverlayTrigger placement="bottom" overlay={<Tooltip>Click to See who liked this review</Tooltip>}><span onClick={()=>setLikeModal(true)} role="button" className='text-decoration-underline'>{likesCount}</span></OverlayTrigger>} {liked ? <AiFillHeart color="red" onClick={()=>likeReview.mutate()} role="button" size={40}/>  : <AiOutlineHeart  className='heartIcon' onClick={()=>likeReview.mutate()} role="button" size={40} /> }
+        <div className="reacts d-flex justify-content-between w-100 mt-2">
+          <div className=" d-flex align-items-center gap-3">
+            {likesCount!==0 && <OverlayTrigger  placement="bottom" overlay={<Tooltip>Click to See who liked this review</Tooltip>}><span  onClick={()=>setLikeModal(true)} role="button" className='text-decoration-underline'>{likesCount}</span></OverlayTrigger>} {liked ? <AiFillHeart color="red" onClick={()=>likeReview.mutate()} role="button" size={40}/>  : <AiOutlineHeart  className='heartIcon' onClick={()=>likeReview.mutate()} role="button" size={40} /> }
             <span>{commentsCount} <AiOutlineComment  size={40}/></span>
           </div>
          {currentUser && <Rating allowFraction initialValue={myRating} onClick={(rating)=>rateReview.mutate(rating)}/> } 

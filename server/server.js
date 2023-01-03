@@ -13,6 +13,7 @@ import reviewRouter from "./routes/review.js"
 import userRouter from "./routes/user.js"
 import commentRouter from "./routes/comment.js"
 import passportAuthRouter from "./routes/passportAuth.js"
+import adminRouter from "./routes/admin.js"
 
 import sequelize from "./config/Database.js";
 import "./passportSetup.js"
@@ -57,6 +58,7 @@ app.use("/api/v1/reviews",reviewRouter)
 app.use("/api/v1/user",userRouter)
 app.use("/api/v1/comments",commentRouter);
 app.use(passportAuthRouter);
+app.use("/api/v1/admin",adminRouter);
 
 
 
