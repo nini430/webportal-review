@@ -38,11 +38,14 @@ export const COLUMNS = [
     Header: "images",
     accessor: "reviewImages",
     Cell: ({ value }) => (
-      <Slider slidesToShow={1} autoplay autoplaySpeed={2000}>
-        {value.map((val) => (
+      value.length ? (
+        <Slider slidesToShow={1} autoplay autoplaySpeed={2000}>
+        {value.length?value.map((val) => (
           <img className="miniImg" src={val.img} alt="" />
-        ))}
+        )):"No Images"}
       </Slider>
+      ):"No Images"
+     
     ),
    disableSortBy:true,
    disableFilters:true

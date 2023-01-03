@@ -8,7 +8,7 @@ import { getUserProfile } from '../redux/slices/profile'
 import {ClipLoader} from "react-spinners"
 import moment from "moment"
 import Slider from "react-slick"
-import {useTable,useSortBy,useGlobalFilter,useFilters} from "react-table"
+import {useTable,useSortBy,useGlobalFilter,useFilters,usePagination} from "react-table"
 import {TiArrowSortedDown,TiArrowSortedUp,TiArrowUnsorted,TiEdit} from "react-icons/ti"
 import axios from "axios"
 
@@ -74,7 +74,7 @@ const Profile = () => {
       
     })
   })  
-  const {getTableProps,getTableBodyProps,rows,prepareRow,headerGroups,state,setGlobalFilter}=useTable({columns,data,defaultColumn},useFilters,useGlobalFilter,useSortBy);
+  const {getTableProps,getTableBodyProps,page,prepareRow,headerGroups,state,setGlobalFilter}=useTable({columns,data,defaultColumn},useFilters,useGlobalFilter,useSortBy,usePagination);
   const {globalFilter}=state;
  
   if(!userProfile) return <ClipLoader size={150}/>
@@ -94,7 +94,7 @@ const Profile = () => {
         
           <p><strong>Email: </strong>{email}</p>
           <div className='d-flex gap-2'><strong>Bio: </strong>
-          {isLoading? <ClipLoader size={40}/>:inEditMode? <Form.Control onChange={e=>setText(e.target.value)} value={text} as="textarea"/>: <div className="bio">{bio}</div>}  
+          {isLoading? <ClipLoader size={40}/>:inEditMode? <Form.Control onChange={e=>setText(e.target.value)} value={text} as="textarea"/>: <div className="bio">{bio?bio:"No Bio"}</div>}  
           </div>
           <p><strong>Member since: </strong>{moment(createdAt).format("L")}</p>
           <Button onClick={inEditMode?()=>mutate({bio:text}):()=>setInEditMode(true)} className='d-flex align-items-center gap-1 justify-content-center'>{inEditMode?"Save":<><TiEdit size={20}/>Update</>}</Button>
@@ -144,7 +144,7 @@ const Profile = () => {
              ))}
                 </thead>
                 <tbody {...getTableBodyProps()}>
-                  {rows.map(row=>{
+                  {page.map(row=>{
                     prepareRow(row);
                     return (
                       <tr>

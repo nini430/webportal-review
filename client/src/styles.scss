@@ -13,6 +13,18 @@ $modes: (
   ),
 );
 
+@mixin mobile {
+  @media (max-width: 480px) {
+   @content;
+  }
+}
+
+@mixin tablet {
+ @media (max-width:960px) {
+   @content;
+ }
+}
+
 
    
 body {
@@ -90,11 +102,10 @@ body {
 }
 
 
-.cards {
+.slick-slider {
   @include themify($modes) {
-   
-      
-
+       
+      max-width:100%;
       .slick-prev {
         left:0;
         z-index:10;
@@ -112,6 +123,8 @@ body {
         min-height:400px!important;
         color:themed("color");
         transition:all 0.4s ease;
+
+        
 
         .card-header {
           text-align:center;
@@ -291,6 +304,12 @@ body {
     background: themed("bgSoft");
     min-height: calc(100vh - 70px);
     padding:30px 70px;
+    display: flex;
+    flex-direction: column;
+
+    @include mobile {
+      padding:10px  20px;
+    }
 
     h1 {
       color:themed("color");
@@ -301,11 +320,23 @@ body {
       }
     }
 
-    @extend .cards;
+    @extend .slick-slider;
 
     
 
-    
+    .bio {
+     width:100%;
+      img {
+        width:40px;
+        height:40px;
+        border-radius:50%;
+      }
+
+      textarea {
+        min-width:600px!important;
+      }
+
+    }
 
   }
 }
@@ -978,7 +1009,7 @@ body {
      .reviewSearch {
       margin-top:10px;
       max-width:400px;
-        @extend .cards
+        @extend .slick-slider;
 
       
      }
@@ -997,7 +1028,7 @@ body {
         border-radius:10px;
       }
 
-        @extend .cards
+        @extend .slick-slider;
 
       
      }
@@ -1008,5 +1039,4 @@ body {
   overflow:auto!important;
   max-height:700px!important;
 }
-
 

@@ -2,7 +2,7 @@ import React from 'react'
 import { useEffect } from 'react';
 import {useSelector,useDispatch} from "react-redux"
 import {useNavigate} from "react-router-dom"
-import { ReviewList } from '../components';
+import { Bio, ReviewList } from '../components';
 import {useQuery} from "@tanstack/react-query"
 import { axiosFetch } from '../axios';
 import {useTranslation} from "react-i18next"
@@ -44,17 +44,26 @@ const Home = () => {
 
   return (
     <div className='home'>
+     {!currentUser.bio && <Bio/> } 
+      <div className="d-flex flex-column">
       <h1>{t("latest_reviews")}</h1>
       <hr/>
       <ReviewList reviews={latestReviews}/>
+      </div>
      
-      <h1>{t("most_graded_reviews")}</h1>
+     
+     <div className="d-flex flex-column">
+     <h1>{t("most_graded_reviews")}</h1>
       <hr/>
       <ReviewList reviews={MostGradedReviews}/>
+     </div>
       
+      <div className="d-flex flex-column">
       <h1>{t("most_rated_reviews")}</h1>
       <hr/>
       <ReviewList reviews={MostRatedReviews}/>
+      </div>
+    
       
     </div>
   )

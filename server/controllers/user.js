@@ -47,3 +47,13 @@ export const updateUser=async(req,res)=>{
         }
 }
 
+export const addBio=async(req,res)=>{
+        const {bio}=req.body;
+        try{
+        const user=await User.findByPk(req.userId);
+        await user.update({bio});
+        return res.status(StatusCodes.CREATED).json({msg:"bio_added"});
+        }catch(err) {
+            return res.status(StatusCodes.OK).json(err);
+        }
+}

@@ -11,6 +11,7 @@ export {default as ColumnFilterInput} from "./ColumnFilterInput"
 export {default as Parameter} from "./Parameter";
 export {default as UpdatePasswordModal} from "./UpdatePasswordModal";
 export {default as ForgetModal} from "./ForgetModal"
+export {default as Bio} from "./Bio"
 
 
 
