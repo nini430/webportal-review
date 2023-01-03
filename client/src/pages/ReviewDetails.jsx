@@ -18,7 +18,7 @@ import {io} from "socket.io-client"
 
 import {Comment, ReactModal} from '../components'
 import { axiosFetch } from '../axios'
-import {getReview,getComments,setLastId,clearComments} from "../redux/slices/review"
+import {getReview,getComments,setLastId,clearComments,deleteComment,editComment,reactComment,unreactComment} from "../redux/slices/review"
 import { keys } from '../env'
 import {DeleteModal} from '../components'
 import { toastOptions } from '../utils/toastOptions'
@@ -47,13 +47,27 @@ const ReviewDetails = () => {
     socket.current=io('http://localhost:8000',{query:{id:currentUser.uuid}})
   },[dispatch,currentUser.uuid])  
   
-  
+ 
   useEffect(()=>{
     if(socket?.current) {
       socket?.current?.on("receive_message",(data)=>{
         console.log("iuhu")
         dispatch(getComments({comments:[data],append:true}))
       })
+       
+    socket?.current?.on("receive_delete",({id})=>{
+      dispatch(deleteComment({id}));
+    })
+    socket?.current?.on("receive_edit",({id,text})=>{
+      dispatch(editComment({id,text}))
+    })
+    socket?.current?.on("receive_react",({updated,id,data,oldEmoji})=>{
+      dispatch(reactComment({id,updated,data,oldEmoji}))
+    })
+
+    socket?.current?.on("receive_unreact",({id,userId,oldEmoji})=>{
+      dispatch(unreactComment({id,userId,oldEmoji}))
+    })
     }
    
 

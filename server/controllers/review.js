@@ -307,7 +307,7 @@ export const searchThroughApp=async(req,res)=>{
      }) 
 
      reviews=await Review.findAll({
-      where:sequelize.literal("MATCH(`reviewName`,`reviewedPiece`,`group`,`tags`,`reviewText`) AGAINST(:name IN BOOLEAN MODE)"),
+      where:sequelize.literal("MATCH(`reviewName`,`reviewedPiece`,`group`,`tags`,`reviewText`) AGAINST(:name IN BOOLEAN MODE)"),  
       replacements:{
         name:`+${text}`
       },

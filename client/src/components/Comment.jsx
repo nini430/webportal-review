@@ -35,27 +35,7 @@ const Comment = ({comment:{comment,users,reacts},socket}) => {
   const reacted=users.find(user=>user?.user.id===currentUser.id)?.reaction.emoji;
   
 
-  useEffect(()=>{
-    console.log("why")
-    let socketInstance=socket?.current;
-    
-    socketInstance?.on("receive_delete",({id})=>{
-      dispatch(deleteComment({id}));
-    })
-    socketInstance?.on("receive_edit",({id,text})=>{
-      dispatch(editComment({id,text}))
-    })
-    socketInstance?.on("receive_react",({updated,id,data,oldEmoji})=>{
-      dispatch(reactComment({id,updated,data,oldEmoji}))
-    })
 
-    socketInstance?.on("receive_unreact",({id,userId,oldEmoji})=>{
-      dispatch(unreactComment({id,userId,oldEmoji}))
-    })
-
-    return ()=>socketInstance.off("receive_react");
-   
-  },[])
 
 
 

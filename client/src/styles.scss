@@ -863,6 +863,9 @@ body {
     .right {
       flex:5;
       align-self:start;
+      display: flex;
+      flex-direction: column;
+
       
       select {
         width:200px;
@@ -895,6 +898,20 @@ body {
           max-width:200px;
           height:100px;
           object-fit: cover;
+        }
+      }
+
+      .bottom {
+        
+        align-self:center;
+
+        input {
+          width:50px;
+        }
+        button {
+          background:themed("bg");
+          border:none;
+          color:themed("color");
         }
       }
     }

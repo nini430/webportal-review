@@ -74,8 +74,8 @@ const Profile = () => {
       
     })
   })  
-  const {getTableProps,getTableBodyProps,page,prepareRow,headerGroups,state,setGlobalFilter}=useTable({columns,data,defaultColumn},useFilters,useGlobalFilter,useSortBy,usePagination);
-  const {globalFilter}=state;
+  const {getTableProps,getTableBodyProps,page,nextPage,gotoPage,pageCount,previousPage,canNextPage,canPreviousPage,prepareRow,headerGroups,state,setGlobalFilter,pageOptions}=useTable({columns,data,defaultColumn,initialState:{pageSize:6}},useFilters,useGlobalFilter,useSortBy,usePagination);
+  const {globalFilter,pageIndex}=state;
  
   if(!userProfile) return <ClipLoader size={150}/>
   
@@ -158,6 +158,21 @@ const Profile = () => {
               
             
           </Table>
+          <div className="bottom">
+            <div className="d-flex align-items-center">
+            <Button disabled={!canPreviousPage} onClick={()=>gotoPage(0)}>{`<<`}</Button>
+          <Button disabled={!canPreviousPage} onClick={()=>previousPage()}>Previous</Button>
+          <span><Form.Control type="number" defaultValue={1} onChange={(e)=>{
+            const pageIndex=+e.target.value-1||0;
+            gotoPage(pageIndex);
+          }}/></span>
+          <Button disabled={!canNextPage} onClick={()=>nextPage()}>Next</Button>
+          <Button disabled={!canNextPage} onClick={()=>gotoPage(pageCount-1)}>{`>>`}</Button>
+            </div>
+           
+          <p className='text-center'>Page <strong>{pageIndex+1} </strong>Of {pageOptions.length}</p>
+          </div>
+          
         </div>
    
     </div>
