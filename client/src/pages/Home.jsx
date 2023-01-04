@@ -2,7 +2,7 @@ import React from 'react'
 import { useEffect } from 'react';
 import {useSelector,useDispatch} from "react-redux"
 import {useNavigate} from "react-router-dom"
-import { Bio, ReviewList } from '../components';
+import { Bio, ReviewList,TagCloudComponent } from '../components';
 import {useQuery} from "@tanstack/react-query"
 import { axiosFetch } from '../axios';
 import {useTranslation} from "react-i18next"
@@ -40,7 +40,14 @@ const Home = () => {
 
   return (
     <div className='home'>
-     {/* {(!currentUser.bio&& currentUser.role==="user" )&& <Bio/> }  */}
+      <div className="d-flex justify-content-between">
+      {(!currentUser.bio&& currentUser.role==="user" )&& <Bio/> } 
+     
+     <TagCloudComponent/>
+      </div>
+      
+     
+     
       <div className="d-flex flex-column">
       <h1>{t("latest_reviews")}</h1>
       <hr/>

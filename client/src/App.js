@@ -1,5 +1,5 @@
 import {createBrowserRouter,Outlet,RouterProvider} from "react-router-dom"
-import { AdminContent, Admins, DeletedUsers, NavBar, Requests, Reviews, SideBar, Users } from "./components"
+import { AdminContent, Admins, DeletedUsers, NavBar, Requests, Reviews, SideBar, TagCloudComponent, Users } from "./components"
 import {Profile,Auth,CreateReview,Home,ReviewDetails,Settings, PasswordReset, SearchResults, AdminPage} from "./pages"
 import {useSelector} from "react-redux"
 
@@ -7,7 +7,10 @@ const Layout=()=>{
   return (
     <>
       <NavBar/>
+      
       <Outlet/>
+      
+      
     </>
   )
 }
