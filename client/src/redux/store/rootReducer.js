@@ -8,6 +8,9 @@ import authReducer from "../slices/auth"
 import reviewReducer from "../slices/review"
 import profileReducer from "../slices/profile"
 import searchReducer from "../slices/search"
+import requestReducer from "../slices/requests"
+import notificationReducer from "../slices/notifications"
+import socketReducer from "../slices/socket"
 
 
 
@@ -22,6 +25,12 @@ const authConfig={
     whitelist:["currentUser"]
 }
 
+const notificationConfig={
+    key:"notification",
+    storage,
+    
+}
+
 
 
 
@@ -30,7 +39,10 @@ const rootReducer=combineReducers({
     auth:persistReducer(authConfig,authReducer),
     review:reviewReducer,
     profile:profileReducer,
-    search:searchReducer
+    search:searchReducer,
+    request:requestReducer,
+    notification:persistReducer(notificationConfig,notificationReducer),
+    socket:socketReducer
     
 
 })

@@ -1,6 +1,6 @@
 import {StatusCodes} from "http-status-codes"
 import { Op } from "sequelize";
-import {User} from "../models/index.js"
+import {Request, User} from "../models/index.js"
 
 export const getAllUsers=async(req,res)=>{
     const {role,deleted}=req.query;
@@ -49,3 +49,27 @@ export const makeAdminOrNonAdmin=async(req,res)=>{
         return res.status(StatusCodes.OK).json(err);
     }
 }
+
+export const getAdminRequests=async(req,res)=>{
+    try{
+    const requests=await Request.findAll({where:{status:{[Op.not]:"rejected"}},include:[{model:User,attributes:{exclude:["password"]}}]});
+    return res.status(StatusCodes.OK).json(requests);
+    }catch(err) {
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
+    }
+}
+
+export const declineUserRequest=async(req,res)=>{
+    try{
+        const user=await User.findOne({where:{uuid:req.params.id}})
+        const request=await Request.findOne({where:{userId:user.id}});
+    request.status="rejected";
+    await request.save();
+    return res.status(StatusCodes.OK).json({msg:"request_rejected"})
+    }catch(err) {
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
+    }
+}
+
+
+

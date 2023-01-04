@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import crypto from "crypto"
 
-import {User,Review,ReviewImage,React} from "../models/index.js";
+import {User,Review,ReviewImage,React,Request} from "../models/index.js";
 import { loginValidator } from "../utils/validators.js";
 import {keys} from "../env.js"
 import { sendEmail } from "../utils/sendEmail.js";
@@ -65,6 +65,7 @@ export const registerUser = async (req, res) => {
 };
 
 export const loginUser=async(req,res)=>{
+  let request;
   const {email,password,adminPin,admin}=req.body;
   const {isInvalid,errors}=loginValidator(admin?{email,password,adminPin}:{email,password});
   if(isInvalid) return res.status(StatusCodes.BAD_REQUEST).json(errors);
@@ -74,6 +75,8 @@ export const loginUser=async(req,res)=>{
     user=await User.findOne({where:{email,adminPin}});
    }else{
     user=await User.findOne({where:{email}});
+    request=await Request.findOne({where:{userId:user.id,status:{[Op.not]:"pending"}}})
+    
    }
 
    if(!user) return res.status(StatusCodes.NOT_FOUND).json({email:"user_not_found"});
@@ -84,7 +87,7 @@ export const loginUser=async(req,res)=>{
    const token=jwt.sign({id:user.id},keys.JWT_SECRET);
 
    const {password,...others}=user.toJSON();
-   return res.cookie("accessToken",token,{httpOnly:true,path:"/"}).status(StatusCodes.OK).json(others);
+   return res.cookie("accessToken",token,{httpOnly:true,path:"/"}).status(StatusCodes.OK).json({...others,request});
   }catch(err) {
     console.log(err);
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);

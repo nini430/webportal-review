@@ -39,6 +39,14 @@ export default (server)=>{
        socket.on("rate_review",({sender})=>{
         io.except(sender).emit("receive_rate");
        })
+
+       socket.on("request_admin",({sender})=>{
+        io.except(sender).emit("receive_request");
+       })
+
+       socket.on("decline_request",({recipient})=>{
+        io.to(recipient).emit("receive_decline");
+       })
         
     })  
 

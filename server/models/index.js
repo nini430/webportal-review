@@ -5,6 +5,7 @@ import Rating from "./Rating.js";
 import Like from "./Like.js";
 import Comment from "./Comment.js";
 import React from "./React.js";
+import Request from "./Request.js";
 
 User.hasMany(Review,{onUpdate:"CASCADE",onDelete:"CASCADE"});
 Review.belongsTo(User,{onUpdate:"CASCADE",onDelete:"CASCADE"});
@@ -22,7 +23,10 @@ Comment.belongsTo(User,{onUpdate:"CASCADE",onDelete:"CASCADE"})
 Review.hasMany(Comment,{onUpdate:"CASCADE",onDelete:"CASCADE"});
 Comment.belongsTo(Review,{onUpdate:"CASCADE",onDelete:"CASCADE"});
 
+User.hasOne(Request);
+Request.belongsTo(User);
 
 
 
-export {User,Review,ReviewImage,Rating,Like,Comment,React}
+
+export {User,Review,ReviewImage,Rating,Like,Comment,React,Request}

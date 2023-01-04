@@ -34,11 +34,14 @@ const authSlice=createSlice({
         },
         addBio:(state,action)=>{
             state.currentUser.bio=action.payload;
+        },
+        clearNotification:(state,action)=>{
+            state.currentUser.request=null;
         }
     }
 
 })
 
-export const {authStart,authSuccess,authError,cleanupErrors,getUser,logout,addBio}=authSlice.actions;
+export const {authStart,authSuccess,authError,cleanupErrors,getUser,logout,addBio,clearNotification}=authSlice.actions;
 
 export default authSlice.reducer;

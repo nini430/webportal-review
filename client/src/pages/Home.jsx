@@ -40,7 +40,7 @@ const Home = () => {
 
   return (
     <div className='home'>
-      <div className="d-flex justify-content-between">
+      <div className="d-flex justify-content-between intro">
       {(!currentUser.bio&& currentUser.role==="user" )&& <Bio/> } 
      
      <TagCloudComponent/>

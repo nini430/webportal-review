@@ -1,7 +1,7 @@
 import { StatusCodes } from "http-status-codes"
 import bcrypt from "bcryptjs"
 
-import {User,Review,ReviewImage} from "../models/index.js"
+import {User,Review,ReviewImage, Request} from "../models/index.js"
 import { json } from "sequelize"
 
 
@@ -58,4 +58,31 @@ export const addBio=async(req,res)=>{
         }catch(err) {
             return res.status(StatusCodes.OK).json(err);
         }
+}
+
+export const makeRequest=async(req,res)=>{
+    try{
+        const request=await Request.findOne({where:{userId:req.userId}});
+        if(request) return res.status(StatusCodes.BAD_REQUEST).json({msg:"request_already_made"})
+    await Request.create({
+        userId:req.userId
+    })
+    return res.status(StatusCodes.CREATED).json({msg:"request_sent"});
+    }catch(err) {
+        console.log(err);
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
+    }
+}
+
+export const deleteRequest=async(req,res)=>{
+    try{
+    const request=await Request.findOne({where:{userid:req.userId}});
+    if(request) {
+        await request.destroy();
+    }
+    
+    return res.status(StatusCodes.OK).json({msg:"request_deleted"})
+    }catch(err) {
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
+    }
 }

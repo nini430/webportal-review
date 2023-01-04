@@ -412,6 +412,32 @@ body {
       }
     }
 
+    .notification {
+      cursor:pointer;
+       .circle {
+        position: absolute;
+        top:0;
+        right:0;
+        width:15px;
+        height:15px;
+        background:red;
+        border-radius:50%;
+       }
+
+       .notify {
+        padding:20px;
+        position:absolute;
+        top:50px !important;
+        right:0;
+        min-width:400px;
+        min-height:100px;
+        max-height:600px;
+        overflow-y:auto;
+        background:themed("bgSoft");
+        color:themed("color");
+      }
+    }
+
     .input-group {
       display: flex!important;
       flex-wrap:nowrap!important;
@@ -462,14 +488,12 @@ body {
           background:themed("bgSoft");
           color:themed("color");
           transition:all 0.3s ease;
-
-          .mode {
-
-            button {
-              background:themed("bg");
-              border:0;
-            }
+          button {
+            background:themed("bg")!important;
+            color:themed("color")!important;
+            border:0;
           }
+
 
           
         
@@ -499,7 +523,7 @@ body {
       }
     }
 
-  
+ 
 
     .endPart {
       flex: 1;
@@ -558,8 +582,34 @@ body {
     display: flex;
     flex-direction: column;
 
+
+
     @include mobile {
       padding:10px 5px;
+    }
+    .intro {
+      .bio {
+        width:100%;
+         img {
+           width:40px;
+           height:40px;
+           border-radius:50%;
+         }
+   
+         textarea {
+           width:600px!important;
+   
+           @include mobile {
+             max-width:300px!important;
+           }
+         }
+   
+       }
+      @include mobile {
+       
+        flex-direction: column;
+        align-items: center;
+      }
     }
 
     h1 {
@@ -575,19 +625,7 @@ body {
 
     
 
-    .bio {
-     width:100%;
-      img {
-        width:40px;
-        height:40px;
-        border-radius:50%;
-      }
-
-      textarea {
-        min-width:600px!important;
-      }
-
-    }
+   
 
   }
 }
@@ -1270,6 +1308,29 @@ body {
       flex-direction: column;
       justify-content: center;
       align-items: center;
+
+      .adminBtn {
+                 
+       
+          background-image: linear-gradient(to right, #348F50 0%, #56B4D3  51%, #348F50  100%);
+          margin: 10px;
+          padding: 15px 45px;
+          text-align: center;
+          text-transform: uppercase;
+         
+          color: white;            
+         border:none;
+          border-radius: 10px;
+          display: block;
+        
+
+        .btn-grad:hover {
+          background-position: right center; /* change the direction of the change here */
+          color: #fff;
+          text-decoration: none;
+        }
+       
+      }
       
        
 
