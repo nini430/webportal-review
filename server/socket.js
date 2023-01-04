@@ -45,7 +45,7 @@ export default (server)=>{
        })
 
        socket.on("decline_request",({recipient})=>{
-        io.to(recipient).emit("receive_decline")
+        io.to(recipient).emit("receive_decline");
        })
         
     })  
