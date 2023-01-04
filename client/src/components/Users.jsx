@@ -1,6 +1,8 @@
 import { useMutation, useQuery,useQueryClient} from '@tanstack/react-query'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Table } from 'react-bootstrap'
+import { useSelector } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
 import {ClipLoader} from "react-spinners"
 
 import { axiosFetch } from '../axios'
@@ -8,6 +10,14 @@ import {userColumns} from "../columns"
 import {TableComponent} from '../components'
 
 const Users = () => {
+  const {currentUser}=useSelector(state=>state.auth);
+  const navigate=useNavigate();
+
+  useEffect(()=>{
+    if(currentUser.role!=="admin") {
+      navigate("/")
+    }
+  },[currentUser,navigate])
   const client=useQueryClient();
     const {isLoading,data}=useQuery(["users"],()=>{
         return axiosFetch.get("/admin/allusers/?role=user",{withCredentials:true})

@@ -1,4 +1,7 @@
-import React from 'react'
+
+import React,{useEffect} from 'react'
+import {useNavigate} from "react-router-dom"
+import {useSelector} from "react-redux"
 import {Image,Button, OverlayTrigger, Tooltip} from "react-bootstrap"
 import {RxCross2} from "react-icons/rx"
 import {MdDone} from "react-icons/md"
@@ -8,6 +11,15 @@ import {keys} from "../env"
 
 
 const Requests = () => {
+  const {currentUser}=useSelector(state=>state.auth);
+  const navigate=useNavigate();
+
+  useEffect(()=>{
+    if(currentUser.role!=="admin") {
+      navigate("/")
+    }
+  },[currentUser,navigate])
+  
   
   return (
     <div className='requestPage p-5 d-flex flex-column gap-3'>

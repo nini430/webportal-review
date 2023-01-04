@@ -1,11 +1,21 @@
 import { useQuery } from '@tanstack/react-query';
-import React from 'react'
+import React,{useEffect} from 'react'
+import {useNavigate} from "react-router-dom"
+import {useSelector} from "react-redux"
 import { axiosFetch } from '../axios';
 import { userColumns } from '../columns';
 import TableComponent from './Table';
 import {ClipLoader} from "react-spinners"
 
 const DeletedUsers = () => {
+  const {currentUser}=useSelector(state=>state.auth);
+  const navigate=useNavigate();
+
+  useEffect(()=>{
+    if(currentUser.role!=="admin") {
+      navigate("/");
+    }
+  },[currentUser,navigate])
     const {data,isLoading,refetch}=useQuery(["deleted"],()=>{
         return axiosFetch.get('/admin/allusers/?deleted=true',{withCredentials:true})
     })
