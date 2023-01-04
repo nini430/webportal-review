@@ -55,10 +55,10 @@ const ReviewList = ({reviews}) => {
         }
       },
       {
-        breakpoint:1024,
+        breakpoint:960,
         settings:{
-          slidesToShow:3,
-          slidesToScroll:3
+          slidesToShow:2,
+          slidesToScroll:2
         }
       }
     ]}  autoplay autoplaySpeed={2000} className='cards' slidesToShow={4}>

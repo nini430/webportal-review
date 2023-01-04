@@ -30,6 +30,7 @@ const NavBar = () => {
   console.log(currentUser);
   const navigate=useNavigate();
   const {isLight}=useSelector(state=>state.theme)
+  const [showDropDown,setShowDropDown]=useState(false);
   const dispatch=useDispatch();
   const lang=jsCookie.get("i18next")==="en"?"gb":jsCookie.get("i18next");
   const {t}=useTranslation();
@@ -59,7 +60,7 @@ const NavBar = () => {
       </Navbar.Brand>
       </Link>
       <Nav className='d-flex gap-2 w-100'>
-        <Nav.Item className='d-flex gap-1 align-items-center'>
+        <Nav.Item className='d-flex gap-1 align-items-center theme'>
           <BsFillSunFill className='icon' size={20}/>
               <ReactSwitch onChange={()=>dispatch(changeTheme())} onColor="#eee" checkedIcon={false} uncheckedIcon={false} checked={!isLight}/>
           <BsFillMoonStarsFill className='icon' size={20}/>
@@ -70,7 +71,32 @@ const NavBar = () => {
           <Button onClick={()=>searchMutation.mutate()} disabled={!search} variant="secondary"><BsSearch size={20}/></Button>
           </InputGroup>
         </Nav.Item>
+        <div onClick={()=>setShowDropDown(!showDropDown)} className="hamburger">
+          <div className="line"></div>
+          <div className="line"></div>
+          <div className="line"></div>
+          
+            <div className={`position-absolute drop ${showDropDown?"show":""}`}>
+              
+              <div className="d-flex justify-content-between mode mb-2">
+              <p><strong>Theme:</strong>{isLight?"Light":"Dark"}</p>
+              <Button size="sm">Change</Button>
+              </div>
+              <div className="d-flex justify-content-between mode">
+              <p><strong>Lang:</strong><span className={`flag-icon flag-icon-${lang}`}></span></p>
+              <div className='d-flex gap-2' size="sm">
+                {countries.filter(country=>country.country_code!==lang).map(c=><span className={` flag-icon flag-icon-${c.country_code}`}></span>)}
+              </div>
+              </div>
+
+              
+             
+               
+            </div>
+         
+        </div>
         <Nav.Item className='endPart'>
+
             <NavDropdown title={<div className={`flag-icon flag-icon-${lang}`}></div>}>
                 {countries.map(country=>(
                   <NavDropdown.Item key={country.country_code} onClick={()=>i18next.changeLanguage(country.locale)}>

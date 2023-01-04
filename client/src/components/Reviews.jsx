@@ -14,7 +14,7 @@ const Reviews = () => {
   return (
     <div className="p-5">
       <h1>List Of Reviews</h1>
-      <TableComponent data={data?.data} columns={adminReviewColumns}/>
+      <TableComponent reviews data={data?.data} columns={adminReviewColumns}/>
     </div>
    
   )

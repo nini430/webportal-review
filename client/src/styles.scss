@@ -13,6 +13,13 @@ $modes: (
   ),
 );
 
+
+@mixin smallMobile {
+  @media (max-width: 300px) {
+    @content;
+  }
+}
+
 @mixin mobile {
   @media (max-width: 480px) {
    @content;
@@ -36,6 +43,28 @@ $modes: (
 body {
   font-family:"Roboto",sans-serif;
 } 
+
+
+.actions {
+
+  .delete {
+    background:orangered;
+    border:none;
+  }
+}
+
+.active {
+  color:lime;
+}
+
+.blocked {
+  color:black;
+  font-weight:900;
+}
+
+.deleted {
+  color:orangered;
+}
 
     
 table {
@@ -152,6 +181,16 @@ body {
 
       }
 
+      @include mobile {
+        .slick-track {
+          gap:20px!important;
+        }
+
+        
+      }
+
+      
+
       .slick-next {
         right:0;
       }
@@ -163,10 +202,11 @@ body {
         min-height:400px!important;
         color:themed("color");
         transition:all 0.4s ease;
-        margin-right:30px;
+    
 
         @include mobile {
-          width:300px;
+          width:250px;
+          padding:5px;
         }
 
         
@@ -201,10 +241,21 @@ body {
               }
             }
 
-            span,p {
+            span {
               @include mobile {
                 font-size:14px;
               }
+            }
+
+            
+
+            
+          }
+          .right {
+            p {
+              @include mobile {
+                font-size:14px;
+              } 
             }
           }
         }
@@ -256,10 +307,19 @@ body {
       border-radius:20px;
       padding:20px;
       overflow-y:auto;
+      max-height:900px;
+
+      @include tablet {
+        width:500px;
+
+      }
       
       @include mobile {
         width:300px;
         max-width:600px;
+      }
+      @include smallMobile {
+        width:200px;
       }
       h2 {
         text-align:center;
@@ -294,15 +354,15 @@ body {
     align-items: center;
     background: themed("bg") !important;
     color: themed("color") !important;
-    z-index:10;
+    z-index:100;
     @include shadow;
 
     @include tablet {
-      padding:10px 30px;
+      padding:10px 10px;
     }
 
     @include mobile {
-      padding:10px 5px; 
+      padding:10px 0px; 
     }
 
     .navbar-brand {
@@ -315,6 +375,7 @@ body {
       }
 
       @include mobile {
+        margin-left:10px;
         width:250px;
       }
 
@@ -368,6 +429,66 @@ body {
     .icon {
       color: themed("color");
     }
+
+    .theme {
+      @include mobile {
+        display: none!important;
+      }
+    }
+
+    .hamburger {
+      
+      display: none;
+
+      .drop {
+        @include shadow;
+         padding:10px;
+          visibility: hidden;
+          min-height:70px;
+          width:100%;
+          top:70px;
+          left:-400px;
+          background:themed("bgSoft");
+          color:themed("color");
+          transition:all 0.3s ease;
+
+          .mode {
+
+            button {
+              background:themed("bg");
+              border:0;
+            }
+          }
+
+          
+        
+      }
+      .show {
+          visibility: visible;
+        z-index:1;
+        left:0;
+        width:100%;
+        
+      }
+
+      .line {
+        
+        width:50px;
+        height:2px;
+        background:themed("color");
+      }
+
+      @include mobile {
+        display: flex;
+        flex-direction: column;
+        gap:10px;
+        flex:1;
+        justify-content: flex-end;
+        align-items: center;
+      }
+    }
+
+  
 
     .endPart {
       flex: 1;
@@ -427,7 +548,7 @@ body {
     flex-direction: column;
 
     @include mobile {
-      padding:10px  20px;
+      padding:10px 5px;
     }
 
     h1 {
@@ -468,6 +589,10 @@ body {
     background:themed("bgSoft");
     display: flex;
     justify-content: center;
+
+    @include tablet {
+      padding:20px;
+    }
 
     @include mobile {
       padding:20px 30px;
@@ -540,6 +665,20 @@ body {
     display: flex;
     justify-content: center;
     background:themed("bgSoft");
+
+    @include smallMobile {
+      padding:10px 5px;
+    }
+    @include mobile {
+      padding:10px;
+    }
+
+    @include tablet {
+      padding:10px 20px;
+    }
+    @include pc {
+      padding:10px 30px;
+    }
 
     form {
       @extend .form;
@@ -920,7 +1059,7 @@ body {
     display: flex;
     gap:30px;
     align-items: center;
-    padding:30px 30px;
+    padding:40px 30px;
 
     @include pc {
       flex-direction: column;
@@ -929,6 +1068,7 @@ body {
     
     @include tablet {
       flex-direction: column;
+      padding:3px 5px;
 
       .table-responsive {
         min-width:400px!important;
@@ -975,11 +1115,12 @@ body {
 
         @include tablet {
           width:300px;
+          align-self:flex-start;
         }
 
         @include mobile {
           width:300px;
-          align-self:center;
+         
         }
 
         img {
@@ -1309,6 +1450,8 @@ body {
 
     table {
       border:1px solid themed("color");
+
+
 
       
     }

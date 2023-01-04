@@ -26,11 +26,7 @@ const Home = () => {
       dispatch(getUser(data.user[0]))
     })
   },[dispatch])
-  useEffect(()=>{
-    if(!currentUser) {
-      navigate("/login")
-    }
-  },[currentUser,navigate])
+
 
   const {data:latestReviews}=useQuery(["reviews"],()=>{
       return axiosFetch.get('/reviews?attribute=createdAt')

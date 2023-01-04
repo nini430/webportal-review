@@ -3,6 +3,7 @@ import Slider from "react-slick";
 import moment from "moment";
 import { keys } from "./env";
 import { Link } from "react-router-dom";
+import {Button} from "react-bootstrap"
 
 
 
@@ -136,7 +137,14 @@ export const userColumns=[
     Header:"Profile Link",
     accessor:"uuid",
     Cell:({value})=><Link  to={`/profile/${value}`}>Link To Profile</Link>
-  }
+  },
+  {
+    Header:"Status",
+    accessor:"status",
+    Cell:({value})=><span className={value}>{value.charAt(0).toUpperCase()+value.substring(1,value.length)}</span>
+  },
+  
+  
 ]
 
 export const adminReviewColumns=[
@@ -146,4 +154,8 @@ export const adminReviewColumns=[
     accessor:"user",
     Cell:({value})=><p>{value.firstName} {value.lastName}</p>
   }
+]
+
+export const deletedUsers=[
+  ...COLUMNS,
 ]

@@ -7,14 +7,14 @@ import {TableComponent} from '../components'
 import { userColumns } from '../columns'
 
 const Admins = () => {
-    const {isLoading,data}=useQuery(["admins"],()=>{
+    const {isLoading,data,refetch}=useQuery(["admins"],()=>{
         return axiosFetch.get("/admin/allusers/?role=admin",{withCredentials:true},)
     })
     if(isLoading) return <ClipLoader size={150}/>
   return (
     <div className='p-5'>
-       <h1>List Of Admins</h1> 
-       <TableComponent data={data?.data} columns={userColumns}/>
+       <h1>List Of Admins (Other than you)</h1> 
+       <TableComponent refetch={refetch} admins data={data?.data} columns={userColumns}/>
     </div>
   )
 }

@@ -25,6 +25,10 @@ const SideBar = () => {
                Requests
                <div className="requests position-absolute d-flex justify-content-center align-items-center">3</div>
             </Link>
+            <Link to="/admin/deleted" className='link p-3 border-bottom w-100' >
+               Deleted Users
+              
+            </Link>
             
         </Nav>
         <Button >Log Out</Button>

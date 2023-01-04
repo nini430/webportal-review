@@ -28,13 +28,13 @@ const Review = ({review}) => {
 
         </Card.Body>
         <Link to={`/profile/${userId}`} className='link'>
-        <Card.Footer className='d-flex justify-content-between'>
+        <Card.Footer className='d-flex justify-content-around align-items-center'>
           <div className="left d-flex align-items-center ">
             <img  src={profUpdated?profileImg:keys.PF+profileImg} alt="" />
             <span>{firstName} {lastName}</span>
           </div>
-          <div className="right align-self-end">
-          <p className='mt-2'>{t("created_at")}: {moment(createdAt).format("L")}</p>
+          <div className="right">
+          <p className='mt-2 '>{t("created_at")}: {moment(createdAt).format("L")}</p>
           </div>
         </Card.Footer></Link>
         <Link className="link" to={`/review/${uuid}`}><Button className='view'>View More</Button></Link>

@@ -1,5 +1,3 @@
-
-
 export {default as NavBar} from "./NavBar"
 export {default as ReviewList} from "./ReviewList";
 export {default as Review} from "./Review";
@@ -21,6 +19,7 @@ export {default as Users} from "./Users"
 export {default as Admins} from "./Admins"
 export {default as Requests} from "./Requests"
 export {default as Reviews} from "./Reviews"
+export {default as DeletedUsers} from "./DeletedUsers"
 
 
 

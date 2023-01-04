@@ -133,6 +133,10 @@ User.init({
     },
     resetPasswordExpire:{
         type:DataTypes.DATE
+    },
+    status:{
+        type:DataTypes.STRING,
+        defaultValue:"active"
     }
 },{sequelize,modelName:"user"})
 
