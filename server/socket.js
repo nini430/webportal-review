@@ -32,7 +32,7 @@ export default (server)=>{
         io.except(userId).emit("receive_unreact",{id,oldEmoji,userId});
        })
 
-       socket.on("like_review",({sender})=>{
+       socket.on("like_review" ,({sender})=>{
             io.except(sender).emit("receive_like");
        })
 
