@@ -32,7 +32,7 @@ const NavBar = () => {
   const {notifications}=useSelector(state=>state.notification)
   const [search,setSearch]=useState("");
   console.log(currentUser);
-  const navigate=useNavigate();
+  const navigate=useNavigate(); 
   const {isLight}=useSelector(state=>state.theme)
   const [showDropDown,setShowDropDown]=useState(false);
   const dispatch=useDispatch();
