@@ -29,7 +29,9 @@ const onListening=()=>{
     console.log("Server running at 8000")
 }
 
-server.listen(8000);
+const port=process.env.PORT;
+
+server.listen(port||8000);
 server.on("listening",onListening);
 
   

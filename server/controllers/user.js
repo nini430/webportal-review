@@ -2,7 +2,6 @@ import { StatusCodes } from "http-status-codes"
 import bcrypt from "bcryptjs"
 
 import {User,Review,ReviewImage, Request} from "../models/index.js"
-import { json } from "sequelize"
 
 
 
@@ -60,9 +59,10 @@ export const addBio=async(req,res)=>{
         }
 }
 
-export const makeRequest=async(req,res)=>{
+export const makeAdminRequest=async(req,res)=>{
     try{
         const request=await Request.findOne({where:{userId:req.userId}});
+     
         if(request) return res.status(StatusCodes.BAD_REQUEST).json({msg:"request_already_made"})
     await Request.create({
         userId:req.userId
@@ -72,6 +72,24 @@ export const makeRequest=async(req,res)=>{
         console.log(err);
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
     }
+}
+
+
+export const makeUserRequest=async(req,res)=>{
+    const {email}=req.body;
+        try{
+        const user=await User.findOne({where:{email}});
+        const request=await Request.findOne({where:{userId:user.id,position:"user"}});
+        if(request) return res.status(StatusCodes.BAD_REQUEST).json({msg:"request_already_made"});
+        await Request.create({
+            userId:user.id,
+            position:"user"
+        })
+        return res.status(StatusCodes.CREATED).json({msg:"request_sent"})
+        }catch(err) {
+            console.log(err);
+            return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
+        }
 }
 
 export const deleteRequest=async(req,res)=>{

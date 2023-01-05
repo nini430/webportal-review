@@ -50,7 +50,7 @@ const Requests = () => {
   if(!requests.length) return <div className="p-5"><h1>No Requests So far</h1></div>
   return (
     <div className='requestPage p-5 d-flex flex-column gap-3'>
-      <h1>Admin Requests</h1>
+      <h1>Requests</h1>
       {requests.map(item=>{
       return (
         <>
@@ -59,6 +59,7 @@ const Requests = () => {
             <Image thumbnail rounded src={item.user.profUpdated?item.user.profileImg:keys.PF+item.user.profileImg}/>
             <span>{item.user.firstName} {item.user.lastName}</span>
           </div>
+          <span>{item.position}</span>
           <div className="icons">
            
            <OverlayTrigger placement="bottom" overlay={<Tooltip>Accept</Tooltip>}>

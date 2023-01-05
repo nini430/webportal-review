@@ -9,6 +9,7 @@ import {keys} from "../env.js"
 import { sendEmail } from "../utils/sendEmail.js";
 import { Op } from "sequelize";
 
+
 export const registerUser = async (req, res) => {
   let {
     firstName,
@@ -75,7 +76,8 @@ export const loginUser=async(req,res)=>{
     user=await User.findOne({where:{email,adminPin}});
    }else{
     user=await User.findOne({where:{email}});
-    request=await Request.findOne({where:{userId:user.id,status:{[Op.not]:"pending"}}})
+    request=await Request.findOne({where:{userId:user?.id,status:{[Op.not]:"pending"}}})
+    
     
    }
 
@@ -83,6 +85,13 @@ export const loginUser=async(req,res)=>{
 
    const isCorrect=await bcrypt.compare(req.body.password,user.password);
    if(!isCorrect) return res.status(StatusCodes.BAD_REQUEST).json({password:"password_not_correct"});
+
+   if(user.status==="blocked") {
+    return res.status(StatusCodes.BAD_REQUEST).json({msg:"your_account_blocked"});
+  }
+  if(user.status==="deleted") {
+    return res.status(StatusCodes.BAD_REQUEST).json({msg:"your_account_deleted",delete:true});
+  }
 
    const token=jwt.sign({id:user.id},keys.JWT_SECRET);
 

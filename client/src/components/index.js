@@ -22,7 +22,7 @@ export {default as Reviews} from "./Reviews"
 export {default as DeletedUsers} from "./DeletedUsers"
 export {default as TagCloudComponent} from "./TagCloud"
 export {default as Notifications} from "./Notifications"
-
+export {default as RecoverRequest} from "./RecoverRequest"
 
 
 

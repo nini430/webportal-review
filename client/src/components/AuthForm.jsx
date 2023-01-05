@@ -10,7 +10,7 @@ import {useSelector,useDispatch} from "react-redux"
 import GoogleIcon from "../assets/google.png";
 import TwitterIcon from "../assets/twitter.png";
 import { axiosFetch } from "../axios";
-import { AdminModal, ForgetModal } from "./";  
+import { AdminModal, ForgetModal, RecoverRequest } from "./";  
 import {authStart, cleanupErrors} from "../redux/slices/auth"
 import { useEffect } from "react";
 
@@ -240,6 +240,7 @@ const AuthForm = ({ isRegister, admin }) => {
       >
         {(isLoading||storeLoading) ? <Spinner/> : (isRegister ? t("register_title") : t("login_title")) }
       </Button>
+      {storeErrors? (storeErrors.delete?<RecoverRequest email={values.email} show={storeErrors.delete} onHide={()=>dispatch(cleanupErrors())}/>:<p className="error">{storeErrors.msg}</p>):""}
       {(!isRegister && !admin && <Button onClick={()=>setForgetModal(true)}  className="forget" variant="link">Forgot Password?</Button>) }
       <div className="quest">
         {isRegister ? t("already_member") : t("not_member")}{" "}
@@ -271,6 +272,7 @@ const AuthForm = ({ isRegister, admin }) => {
         />
       )}
       {forgetModal && <ForgetModal show={forgetModal} onHide={()=>setForgetModal(false)}/>}
+      
     </Form>
   );
 };
