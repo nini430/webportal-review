@@ -31,7 +31,8 @@ const initialState={
 }
 
 const CreateReview = ({update}) => {
-  
+  const [users,setUsers]=useState([]);
+  const {currentUser}=useSelector(state=>state.auth);
   const {id}=useParams();
   const navigate=useNavigate();
   const client=useQueryClient();
@@ -39,6 +40,7 @@ const CreateReview = ({update}) => {
   const [reviewText,setReviewText]=useState("");
   const [tags,setTags]=useState([])
   const [selected,setSelected]=useState([])
+  const [userSelected,setUserSelected]=useState([]);
   const {t}=useTranslation();
   const [showDropdown,setShowDropdown]=useState(false);
   const [images,setImages]=useState([])
@@ -46,6 +48,8 @@ const CreateReview = ({update}) => {
   const [errors,setErrors]=useState({})
   const [deletedImgs,setDeletedImgs]=useState([])
   const sliderRef=useRef();
+
+ 
 
   useEffect(()=>{
     const fetchTags=async()=>{
@@ -55,7 +59,18 @@ const CreateReview = ({update}) => {
     fetchTags().then(data=>{
         setTags(data.map(item=>item.tags));
     }) 
-  },[])
+
+    const fetchUsers=async()=>{
+      const {data}=await axiosFetch.get("/admin/allusers/?role=user",{withCredentials:true})
+      return data;
+    }
+
+    if(currentUser.role==="admin") {
+        fetchUsers().then(data=>{
+          setUsers(data);
+        })
+    }
+  },[currentUser.role])
 
   console.log(tags);
 
@@ -156,6 +171,7 @@ const CreateReview = ({update}) => {
  console.log(selected);
 
  const reviewMutation=useMutation(async(review)=>{
+  
   let imgs=[];
     if(images.length) {
       imgs=await upload();
@@ -165,12 +181,12 @@ const CreateReview = ({update}) => {
     return axiosFetch.post("/reviews",{...review,images:imgs},{withCredentials:true});
 
  },{
-  onSuccess:({data})=>{
+  onSuccess:(data)=>{
     setTimeout(()=>{
       navigate("/");
     },2000);
-    console.log(data.msg);
-    toast.success(t(data.msg),toastOptions);
+    console.log(data?.data?.msg);
+    toast.success(t(data?.data?.msg),toastOptions);
     
   },
   onError:err=>{
@@ -180,7 +196,7 @@ const CreateReview = ({update}) => {
   }
  })
 
- 
+ console.log(errors);
 const updateMutation=useMutation(async(review)=>{
   let imgs=[];
     if(images.filter(item=>!item.uploaded).length) {
@@ -267,7 +283,13 @@ const updateMutation=useMutation(async(review)=>{
         <Form.Control value={values.grade} isInvalid={errors.grade} name="grade" onChange={handleChange} className='grade' type="number"/>
         {errors.grade && <p className='error'>{errors.grade}</p>}
       </Form.Group>
-
+      {!update&&currentUser.role==="admin" && (
+        <Form.Group className='mb-2'>
+          <Form.Label>Created By</Form.Label>
+          <Typeahead multiple={false} id="users" options={users?.map(user=>user.uuid)} selected={userSelected} onChange={setUserSelected} />
+          {errors.createdBy && <p className='error'>{errors.createdBy}</p>}
+        </Form.Group>
+      )}
       <Button onClick={update?()=>{
         updateMutation.mutate({
           ...values,
@@ -277,7 +299,8 @@ const updateMutation=useMutation(async(review)=>{
       }:()=>reviewMutation.mutate({
         ...values,
         tags:selected.join(","),
-        reviewText
+        reviewText,
+        createdBy:userSelected.join(",")
       })} type="submit">{update?"Update":"Create"}</Button>
 
       

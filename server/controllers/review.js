@@ -49,9 +49,17 @@ export const getReviews = async (req, res) => {
 };
 
 export const addReview = async (req, res) => {
-  const { reviewName, reviewedPiece, group, tags, reviewText, images, grade } =
+  let userId;
+  const { reviewName, reviewedPiece, group, tags, reviewText, images, grade,createdBy } =
     req.body;
+  
   try {
+    if(req.role==="admin" && ! createdBy) {
+      return res.status(StatusCodes.BAD_REQUEST).json({createdBy:"add one user"})
+    }
+    if(createdBy) {
+      userId=await User.findOne({where:{uuid:createdBy}})
+    }
     const newReview = await Review.create({
       reviewName,
       reviewedPiece,
@@ -59,7 +67,7 @@ export const addReview = async (req, res) => {
       tags,
       reviewText,
       grade,
-      userId: req.userId,
+      userId: userId.id||req.userId,
     });
     if (images.length) {
       await ReviewImage.bulkCreate(
