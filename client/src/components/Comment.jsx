@@ -20,9 +20,10 @@ import { BiCommentError } from 'react-icons/bi'
 
 
 
-const Comment = ({comment:{comment,users,reacts},socket}) => {
+const Comment = ({comment:{comment,users,reacts}}) => {
   const [pause,setPause]=useState(false);
   const {currentUser}=useSelector(state=>state.auth);
+  const {socket}=useSelector(state=>state.socket);
   const {comments}=useSelector(state=>state.review);
   const [showReactions,setShowReactions]=useState(false);
   const [updatedComment,setUpdatedComment]=useState(comment?.comment)
@@ -43,7 +44,7 @@ const Comment = ({comment:{comment,users,reacts},socket}) => {
       return axiosFetch.delete(`/comments/${id}/${comment?.uuid}`,{withCredentials:true})
   },{
     onSuccess:(data)=>{
-      socket.current?.emit("delete_comment",{id:comment.commentId,sender:currentUser.uuid});
+      socket.emit("delete_comment",{id:comment.commentId,sender:currentUser.uuid});
       dispatch(deleteComment({id:comment.commentId}))
       setModalOpen(false);
     }
@@ -57,7 +58,7 @@ const Comment = ({comment:{comment,users,reacts},socket}) => {
       return axiosFetch.put(`/comments/${id}/${comment.uuid}`,{updatedComment},{withCredentials:true})
   },{
     onSuccess:({data})=>{
-      socket.current?.emit("edit_comment",{id:comment.commentId,text:data.text,sender:currentUser.uuid})
+      socket.emit("edit_comment",{id:comment.commentId,text:data.text,sender:currentUser.uuid})
       dispatch(editComment({id:comment.commentId,text:data.text}));
       setIsEditMode(false);
     }
@@ -67,7 +68,14 @@ const Comment = ({comment:{comment,users,reacts},socket}) => {
     return axiosFetch.post(`/comments/react/${id}/${comment.uuid}`,{emoji},{withCredentials:true})
   },{
     onSuccess:({data})=>{
-      socket.current?.emit("react_comment",{data:{updated:data.updated,id:comment.commentId,data:data.user,oldEmoji:data.oldEmoji},sender:currentUser.uuid})
+      socket.emit("react_comment",{data:{updated:data.updated,id:comment.commentId,data:data.user,oldEmoji:data.oldEmoji},sender:currentUser.uuid})
+      if(data.notification) {
+        if(data.modified) {
+          socket.emit("react_replace",{recipient:data.userId,notification:data.notification});
+        }else{
+          socket.emit("react_notify",{recipient:data.userId,notification:data.notification});
+        }
+      }
       console.log(data);
       dispatch(reactComment({updated:data.updated,id:comment.commentId,data:data.user,oldEmoji:data.oldEmoji}))
     }
@@ -78,7 +86,7 @@ const Comment = ({comment:{comment,users,reacts},socket}) => {
 
   },{
     onSuccess:({data})=>{
-      socket.current?.emit("unreact_comment",{id:comment.commentId,userId:currentUser.id,oldEmoji:data.oldEmoji})
+      socket.emit("unreact_comment",{id:comment.commentId,userId:currentUser.id,oldEmoji:data.oldEmoji})
       dispatch(unreactComment({id:comment.commentId,userId:currentUser.id,oldEmoji:data.oldEmoji}))
     }
   })

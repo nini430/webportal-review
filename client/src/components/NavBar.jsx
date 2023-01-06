@@ -11,7 +11,7 @@ import i18next from 'i18next'
 import {useDispatch,useSelector} from "react-redux"
 import axios from "axios"
 import {ToastContainer,toast} from "react-toastify"
-import {useMutation} from "@tanstack/react-query"
+import {useInfiniteQuery, useMutation, useQueryClient} from "@tanstack/react-query"
 
 import { countries } from '../utils/countries'
 import {changeTheme} from "../redux/slices/theme"
@@ -21,12 +21,12 @@ import {clearNotification, logout} from "../redux/slices/auth"
 import { useState } from 'react'
 import {axiosFetch} from ".././axios"
 import { getSearchResults } from '../redux/slices/search'
-import { addNotification } from '../redux/slices/notifications'
+import { addNotification, removeNotifications, replaceNotification } from '../redux/slices/notifications'
 import Notifications from './Notifications'
 
 
 const NavBar = () => {
-  
+  const client=useQueryClient();  
   const {currentUser}=useSelector(state=>state.auth);
   const {socket}=useSelector(state=>state.socket)
   const {notifications}=useSelector(state=>state.notification)
@@ -36,22 +36,42 @@ const NavBar = () => {
   const {isLight}=useSelector(state=>state.theme)
   const [showDropDown,setShowDropDown]=useState(false);
   const dispatch=useDispatch();
-  const [showCircle,setShowCircle]=useState(false);
   const [showNots,setShowNots]=useState(false)
   const lang=jsCookie.get("i18next")==="en"?"gb":jsCookie.get("i18next");
   const {t}=useTranslation();
+  const unviewedNots=notifications.filter(not=>not?.viewed===false);
 
   useEffect(()=>{
-    socket?.on("receive_decline",()=>{
-      setShowCircle(true);
-      dispatch(addNotification({status:"rejected",createdAt:Date.now()}))
+    console.log("Fine")
+    socket?.on("receive_notify",(data)=>{
+      console.log("receive_notify",data)
+      dispatch(addNotification(data));
     })
-  },[socket])
-  useEffect(()=>{
-    if(currentUser?.request) {
-      setShowCircle(true);
+    socket?.on("receive_unlike",(data)=>{
+      console.log(data);
+      dispatch(removeNotifications(data))
+    })
+
+    socket?.on("receive_replace",(data)=>{
+      console.log("replace")
+        dispatch(replaceNotification(data))
+    })
+    
+  },[socket,dispatch])
+
+
+  const openNotification=useMutation(()=>{
+    setShowNots(!showNots);
+    if(unviewedNots.length) {
+      return axiosFetch.put("/user/openNots",{},{withCredentials:true})
     }
-  },[currentUser])
+    
+  },{
+    onSuccess:()=>{
+      client.invalidateQueries(["notifications"])
+    }
+  })
+
   const logoutHandler=async()=>{
       const response=await axios.get(`http://localhost:8000/${currentUser.withSocials?'auth/logout':'api/v1/auth/logout'}`,{withCredentials:true})
       toast.success(response.data.msg,toastOptions);
@@ -69,28 +89,9 @@ const NavBar = () => {
     })
   })
 
- const openNotification=useMutation(()=>{
-  setShowCircle(false);
-    if(currentUser.request||!notifications.length) {
-      return axiosFetch.delete("/user/request",{withCredentials:true})
-    }
-   
+ 
   
     
- },
- {
-  onSuccess:()=>{
-    
-      setShowNots(!showNots);
-      if(currentUser.request) {
-      
-        dispatch(addNotification(currentUser.request));
-     
-      }
-      
-  }
- }
- )
   return (
     <Navbar className='navbar'>
       <Link to="/" className='link'>
@@ -149,10 +150,10 @@ const NavBar = () => {
             </NavDropdown>
             <BsMessenger className='icon' role="button" size={25}/>
           
-           <div   onClick={()=>openNotification.mutate()} className="notification position-relative">
+           <div onClick={()=>openNotification.mutate()}    className="notification position-relative">
             <BsBellFill className='icon' role="button" size={25}/>
-            {showCircle && <div className='circle'></div>}
-            {showNots && <Notifications/>}
+            {unviewedNots.length ? <div className='circle'>{unviewedNots.length?unviewedNots.length:""}</div>:""}
+            {showNots ? <Notifications/>:""}
             </div>
            
             <OverlayTrigger placement='bottom' overlay={<Tooltip>Write a Review</Tooltip>} >

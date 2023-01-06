@@ -3,7 +3,7 @@ import Slider from "react-slick";
 import moment from "moment";
 import { keys } from "./env";
 import { Link } from "react-router-dom";
-import {Button} from "react-bootstrap"
+import {Button,Image} from "react-bootstrap"
 
 
 
@@ -111,6 +111,7 @@ export const userColumns=[
   {
     Header:"profile Image",
     accessor:"profileImg",
+    Cell:(props)=><Image width={40} height={30} thumbnail src={props.row?.original?.profUpdated?props.value:keys.PF+props.value}/>
 
   },
   {

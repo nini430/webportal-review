@@ -13,7 +13,7 @@ const TableComponent = ({columns,data,users,deleted,admins,refetch}) => {
   const client=useQueryClient();
   const blockOrUnblockMutation=useMutation((body)=>{
       
-    return axiosFetch.put(`/admin/block?status=${body.status}`,{userIds:body.userIds},{withCredentials:true})
+    return axiosFetch.put(`/admin/status?status=${body.status}`,{userIds:body.userIds},{withCredentials:true})
   },{
     onSuccess:()=>{
       client.invalidateQueries(["users"]);

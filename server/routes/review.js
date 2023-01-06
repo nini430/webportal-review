@@ -14,7 +14,7 @@ router.get("/:id",getReview);
 router.delete("/:id",checkAuth,deleteReview);
 router.post("/rate/:id",checkAuth,rateReview);
 router.put("/like/:id",checkAuth,likeReview);
-router.put("/edit/:id",editReview);
+router.put("/edit/:id",checkAuth,editReview);
 
 
 export default router;

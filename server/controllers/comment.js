@@ -1,7 +1,7 @@
 import { StatusCodes } from "http-status-codes";
 import { Op } from "sequelize";
 
-import { User, Comment, Review, React } from "../models/index.js";
+import { User, Comment, Review, React,Notification } from "../models/index.js";
 
 export const getComments = async (req, res) => {
   let comments = [];
@@ -181,21 +181,32 @@ export const reactComment = async (req, res) => {
   const { emoji } = req.body;
   let react;
   let oldEmoji;
+  let notification;
   try {
     const review = await Review.findOne({ where: { uuid: reviewId } });
     if (!review)
       return res
         .status(StatusCodes.NOT_FOUND)
         .json({ msg: "review_not_found" });
-    const comment = await Comment.findOne({ where: { uuid: commentId } });
+    const comment = await Comment.findOne({ where: { uuid: commentId } })
+    
     if (!comment)
       return res
         .status(StatusCodes.NOT_FOUND)
         .json({ msg: "comment_not_found" });
+        const author=await User.findByPk(comment.userId);
+    const reactedBy=await User.findByPk(req.userId);
     const reacted = await React.findOne({
       where: { commentId: comment.commentId, userId: req.userId },
     });
     if (reacted) {
+      notification=await Notification.findOne({where:{userId:author.id,madeBy:reactedBy.uuid,subjectId:comment.uuid,reaction:"react"}});
+      if(notification) {
+        notification.value=emoji;
+        notification.viewed=false;
+        await notification.save();
+      }
+     
       updated=true;
       oldEmoji=reacted.emoji;
       comment[reacted.emoji + "Count"]--;
@@ -208,13 +219,25 @@ export const reactComment = async (req, res) => {
         userId: req.userId,
       });
       comment.totalEmojiCount++;
+
+      if(author.id!==reactedBy.id) {
+        notification=await Notification.create({
+          userId:author.id,
+          madeBy:reactedBy.uuid,
+          subjectId:comment.uuid,
+          reaction:"react",
+          message:`${reactedBy.firstName} ${reactedBy.lastName} reacted to your comment`,
+          value:emoji
+      })
+      }
+      
     }
 
     comment[emoji + "Count"]++;
     await comment.save();
     const user=await User.findByPk(req.userId,{attributes:["firstName","lastName","profileImg","profUpdated","uuid","id"]})
 
-    return res.status(StatusCodes.OK).json({user:{user,reaction:react},updated,oldEmoji});
+    return res.status(StatusCodes.OK).json({user:{user,reaction:react},updated,oldEmoji,modified:reacted,notification,userId:author.uuid});
   } catch (err) {
     console.log(err);
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);

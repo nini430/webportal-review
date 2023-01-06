@@ -2,7 +2,7 @@ import { StatusCodes } from "http-status-codes";
 import { Op } from "sequelize";
 import sequelize from "../config/Database.js";
 
-import { Review, ReviewImage, User, Rating,Like, Comment } from "../models/index.js";
+import { Review, ReviewImage, User, Rating,Like, Comment,Notification } from "../models/index.js";
 
 
 export const getAllReviews=async(req,res)=>{
@@ -162,10 +162,17 @@ export const getReview = async (req, res) => {
 export const rateReview = async (req, res) => {
     const {rating}=req.body;
     try {
+      let notification;
     const review=await Review.findOne({where:{uuid:req.params.id}});
+    const author=await User.findByPk(review.userId);
+    const ratedBy=await User.findByPk(req.userId);
     if(!review) return res.status(StatusCodes.NOT_FOUND).json({msg:"review_not_found"});
     const rated=await Rating.findOne({where:{reviewId:review.id,userId:req.userId}});
     if(rated) {
+      notification=await Notification.findOne({where:{reaction:"rate",userId:author.id,subjectId:review.uuid,madeBy:ratedBy.uuid}});
+      notification.value=`${rating}`;
+      notification.viewed=false;
+      await notification.save(); 
         rated.rating=rating;
         await rated.save();
     }else{
@@ -174,6 +181,17 @@ export const rateReview = async (req, res) => {
             userId:req.userId,
             rating
         })
+        if(author.id!==ratedBy.id) {
+          notification=await Notification.create({
+            reaction:"rate",
+            userId:author.id,
+            madeBy:ratedBy.uuid,
+            subjectId:review.uuid,
+            message:`${ratedBy.firstName} ${ratedBy.lastName} rated  to your review`,
+            value:`${rating}`
+          })
+        }
+       
 
         review.ratingsCount++;
         await review.save();
@@ -189,7 +207,6 @@ export const rateReview = async (req, res) => {
     review.averageRating=ratingInfo.rating_sum/ratingInfo.rating_count;
     await review.save();
     const user=await review.getUser();
-    console.log(user,"useriko")
     let averageSum=await Review.findAll({
       where:{
         userId:user.id
@@ -203,30 +220,58 @@ export const rateReview = async (req, res) => {
     user.ratingNumber=(+averageSum/user.numberOfReviews);
     await user.save();
     
-    return res.status(StatusCodes.OK).json({msg:"review_rated"});
+    return res.status(StatusCodes.OK).json({msg:"review_rated",notification,user:author.uuid,modified:rated});
     }catch(err) {
+      console.log(err);
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
     }
-};
+}
 
 export const likeReview=async(req,res)=>{
     try {
+    let notification;
     const review=await Review.findOne({where:{uuid:req.params.id}});
+    const user=await User.findByPk(review.userId);
+    const likedBy=await User.findByPk(req.userId);
     if(!review) return res.status(StatusCodes.NOT_FOUND).json({msg:"review_not_found"});
     const liked=await Like.findOne({where:{reviewId:review.id,userId:req.userId}});
     if(liked) {
+      if(likedBy.id!==user.id) {
+      notification=await Notification.findOne({where:{userId:user.id,subjectId:review.uuid,madeBy:likedBy.uuid,reaction:"like"}});
+        if(notification) {
+          await notification.destroy();
+        }
+      }
       await liked.destroy();
       review.likesCount--;
     }else{
+      console.log("elsiko")
       await Like.create({
         reviewId:review.id,
         userId:req.userId
       })
+      if(user.id!==likedBy.id) {
+      const notifi=await Notification.findOne({where:{userId:user.id,subjectId:review.uuid,madeBy:likedBy.uuid,reaction:"like"}});
+      console.log(notifi);
+      if(!notifi) {
+        notification=await Notification.create({
+          userId:user.id,
+          message:`${likedBy.firstName} ${likedBy.lastName} liked your review: ${review.reviewName}`,
+          subjectId:review.uuid,
+          madeBy:likedBy.uuid,
+          reaction:"like"
+        })
+      
+      }
+       
+      }
+     
       review.likesCount++;
     }
     await review.save();
-    return res.status(StatusCodes.OK).json({msg:"review_like_update"});
+    return res.status(StatusCodes.OK).json({msg:"review_like_update",user:user.uuid,notification,delete:liked});
     }catch(err) {
+      console.log(err);
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
     }
 }
@@ -239,16 +284,21 @@ export const editReview=async(req,res)=>{
     try{
       const review=await Review.findOne({where:{uuid:req.params.id}});
       if(!review) return res.status(StatusCodes.NOT_FOUND).json({msg:"review_not_found"});
+      if(review.userId===req.userId||req.role==="admin") {
+        await review.update({
+          reviewName,
+          reviewedPiece,
+          group,
+          tags,
+          reviewText,
+          grade
+  
+        })
+      }else{
+        return res.status(StatusCodes.FORBIDDEN).json({msg:"action_not_allowerd"})
+      }
       
-      await review.update({
-        reviewName,
-        reviewedPiece,
-        group,
-        tags,
-        reviewText,
-        grade
-
-      })
+      
 
       if(addedImages.length) {
           const image=await ReviewImage.findOne({where:{reviewId:review.id,img:"review.jpg"}});
@@ -279,8 +329,12 @@ export const deleteReview=async(req,res)=>{
   try{
     const review=await Review.findOne({where:{uuid:req.params.id}});
     if(!review) return res.status(StatusCodes.NOT_FOUND).json({msg:"review_not_found"});
-    if(review.userId!==req.userId) return res.status(StatusCodes.FORBIDDEN).json({msg:"action_not_allowed"});
-    await review.destroy()
+    if(review.userId!==req.userId||req.role==="admin") {
+      await review.destroy()
+    }else{
+      return res.status(StatusCodes.FORBIDDEN).json({msg:"action_not_allowed"})
+    }
+    
     return res.status(StatusCodes.OK).json({msg:"review_deleted"});
   }catch(err) {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);

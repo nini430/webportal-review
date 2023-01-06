@@ -52,21 +52,24 @@ export const makeAdminOrNonAdmin=async(req,res)=>{
 
 export const getAdminRequests=async(req,res)=>{
     try{
-    const requests=await Request.findAll({where:{status:{[Op.not]:"rejected"}},include:[{model:User,attributes:{exclude:["password"]}}]});
+    const requests=await Request.findAll({where:{status:"pending"},include:[{model:User,attributes:{exclude:["password"]}}]});
     return res.status(StatusCodes.OK).json(requests);
     }catch(err) {
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
     }
 }
 
-export const declineUserRequest=async(req,res)=>{
+export const respondToRequest=async(req,res)=>{
+    console.log("aq shedsi")
+    const {status}=req.body;
     try{
         const user=await User.findOne({where:{uuid:req.params.id}})
-        const request=await Request.findOne({where:{userId:user.id}});
-    request.status="rejected";
+        const request=await user.getRequest();
+    request.status=status;
     await request.save();
-    return res.status(StatusCodes.OK).json({msg:"request_rejected"})
+    return res.status(StatusCodes.OK).json({msg:"response_recorded"})
     }catch(err) {
+        console.log(err);
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
     }
 }

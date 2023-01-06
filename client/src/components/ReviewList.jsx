@@ -61,7 +61,7 @@ const ReviewList = ({reviews}) => {
           slidesToScroll:2
         }
       }
-    ]}  autoplay autoplaySpeed={2000} className='cards' slidesToShow={4}>
+    ]}  autoplay autoplaySpeed={2000} infinite={false} className='cards' slidesToShow={4}>
       {reviews?.data.map(review=>(
         <Review review={review}/>
       ))}

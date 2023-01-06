@@ -5,8 +5,12 @@ import {ToastContainer,toast} from "react-toastify"
 
 import {axiosFetch} from ".././axios"
 import {toastOptions} from ".././utils/toastOptions"
+import { useSelector } from 'react-redux'
+
 
 const RecoverRequest = ({show,onHide,email}) => {
+  const {currentUser}=useSelector(state=>state.auth)
+  const {socket}=useSelector(state=>state.socket);
   const {mutate}=useMutation(()=>{
     return axiosFetch.post("/user/userrequest",{email},{withCredentials:true})
   },{

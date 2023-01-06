@@ -34,16 +34,16 @@ const Requests = () => {
         dispatch(getRequests(data));
     }
   })
-  let user;
-  const declineRequestMutation=useMutation((userId)=>{
-      user=userId;
-      return axiosFetch.put(`/admin/decline/${userId}`,{},{withCredentials:true})
-  },{
-    onSuccess:()=>{
-        socket?.emit("decline_request",{recipient:user});
-        client.invalidateQueries(["requests"])
-    }
-  })
+ 
+
+
+const respondToRequest=useMutation((body)=>{
+    return axiosFetch.put(`/admin/respond/${body.userId}`,{status:body.status},{withCredentials:true})
+},{
+  onSuccess:()=>{
+    client.invalidateQueries(["requests"])
+  }
+})
 
   if(isLoading) return <div className="p-5"><ClipLoader size={150}/></div>
   
@@ -62,11 +62,11 @@ const Requests = () => {
           <span>{item.position}</span>
           <div className="icons">
            
-           <OverlayTrigger placement="bottom" overlay={<Tooltip>Accept</Tooltip>}>
-           <Button><MdDone role="button" color="limegreen"/></Button>
+           <OverlayTrigger  placement="bottom" overlay={<Tooltip>Accept</Tooltip>}>
+           <Button ><MdDone role="button" color="limegreen"/></Button>
            </OverlayTrigger>
           <OverlayTrigger placement="bottom" overlay={<Tooltip>Decline</Tooltip>}>
-          <Button onClick={()=>declineRequestMutation.mutate(item.user.uuid)}><RxCross2 role="button" color="orangered"/></Button> 
+          <Button onClick={()=>respondToRequest.mutate({userId:item.user.uuid,status:"rejected"})} ><RxCross2 role="button" color="orangered"/></Button> 
             </OverlayTrigger> 
           </div>
           

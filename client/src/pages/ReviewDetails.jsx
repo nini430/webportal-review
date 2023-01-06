@@ -91,15 +91,17 @@ useEffect(()=>{
   }
 
   socket?.on("receive_like",()=>{
+    console.log("anuuuuuuuuuu")
     refetch();
   })
 
   socket?.on("receive_rate",()=>{
+    console.log("rateraterate")
     refetch()
   })
  
 
-},[socket,dispatch,refetch])
+},[socket])
 
 useEffect(()=>{
   if(commentRef?.current) {
@@ -128,9 +130,26 @@ const rateReview=useMutation((rating)=>{
    return axiosFetch.post(`/reviews/rate/${id}`,{rating},{withCredentials:true})
 },{
   onSuccess:({data})=>{
-    socket?.emit("rate_review",{sender:currentUser.uuid})
+    console.log("anu raxdeba aq")
+    console.log(data);
+    socket?.emit("rate_review",{sender:currentUser.uuid});
+    console.log(data.notification);
+    console.log(data.modified);
+    if(data.notification) {
+        if(data.modified) {
+          console.log("replace");
+          socket.emit("react_replace",{recipient:data.user,notification:data.notification});
+        }else{
+          console.log("react-notify")
+          socket.emit("react_notify",{recipient:data.user,notification:data.notification});
+        }
+      
+    }
     console.log(data);
     client.invalidateQueries(["review"])
+  },
+  onError:err=>{
+    console.log("raaa");
   }
 })
 
@@ -138,7 +157,14 @@ const likeReview=useMutation(()=>{
     return axiosFetch.put(`/reviews/like/${id}`,{},{withCredentials:true})
 },{
   onSuccess:({data})=>{
+    console.log("aq")
     socket?.emit("like_review",{sender:currentUser.uuid});
+    if(!data.delete) {
+      socket?.emit("react_notify",{recipient:data.user,notification:data.notification});
+    }else{
+      socket?.emit("unlike",{recipient:data.user,notification:data.notification})
+    }
+   
     console.log(data);
     client.invalidateQueries(["review"])
   }

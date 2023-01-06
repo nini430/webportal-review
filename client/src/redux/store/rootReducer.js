@@ -27,10 +27,8 @@ const authConfig={
 
 const notificationConfig={
     key:"notification",
-    storage,
-    
+    storage
 }
-
 
 
 
@@ -42,7 +40,8 @@ const rootReducer=combineReducers({
     search:searchReducer,
     request:requestReducer,
     notification:persistReducer(notificationConfig,notificationReducer),
-    socket:socketReducer
+    socket:socketReducer,
+    
     
 
 })

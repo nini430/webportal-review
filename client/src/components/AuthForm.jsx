@@ -26,7 +26,7 @@ export const initialState = {
 };
 
 const AuthForm = ({ isRegister, admin }) => {
-  const {currentUser,isLoading:storeLoading,errors:storeErrors}=useSelector(state=>state.auth)
+  const {currentUser,isLoading:storeLoading,errors:storeErrors}=useSelector(state=>state.auth);
   const dispatch=useDispatch();
   const navigate = useNavigate();
   const [isLoading,setIsLoading]=useState(false);

@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import crypto from "crypto"
 
-import {User,Review,ReviewImage,React,Request} from "../models/index.js";
+import {User,Review,ReviewImage,React,Request,Notification} from "../models/index.js";
 import { loginValidator } from "../utils/validators.js";
 import {keys} from "../env.js"
 import { sendEmail } from "../utils/sendEmail.js";
@@ -76,7 +76,9 @@ export const loginUser=async(req,res)=>{
     user=await User.findOne({where:{email,adminPin}});
    }else{
     user=await User.findOne({where:{email}});
-    request=await Request.findOne({where:{userId:user?.id,status:{[Op.not]:"pending"}}})
+    if(user) {
+      request=await Request.findOne({where:{userId:user?.id,status:{[Op.not]:"pending"}}})
+    }
     
     
    }
@@ -96,7 +98,8 @@ export const loginUser=async(req,res)=>{
    const token=jwt.sign({id:user.id},keys.JWT_SECRET);
 
    const {password,...others}=user.toJSON();
-   return res.cookie("accessToken",token,{httpOnly:true,path:"/"}).status(StatusCodes.OK).json({...others,request});
+   const notifications=await Notification.findAll({where:{userId:user.id},order:[["id","DESC"]]});
+   return res.cookie("accessToken",token,{httpOnly:true,path:"/"}).status(StatusCodes.OK).json({user:others,notifications});
   }catch(err) {
     console.log(err);
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);

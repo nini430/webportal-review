@@ -44,9 +44,22 @@ export default (server)=>{
         io.except(sender).emit("receive_request");
        })
 
-       socket.on("decline_request",({recipient})=>{
-        io.to(recipient).emit("receive_decline");
+       socket.on("react_notify",({recipient,notification})=>{
+         console.log("react notify");
+          io.to(recipient).emit("receive_notify",notification);
        })
+
+       socket.on("unlike",({recipient,notification})=>{
+            io.to(recipient).emit("receive_unlike",notification);
+       })
+
+       socket.on("react_replace",({recipient,notification})=>{
+          io.to(recipient).emit("receive_replace",notification);
+       })
+
+       
+
+       
         
     })  
 

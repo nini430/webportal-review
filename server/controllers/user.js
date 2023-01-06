@@ -1,7 +1,7 @@
 import { StatusCodes } from "http-status-codes"
 import bcrypt from "bcryptjs"
 
-import {User,Review,ReviewImage, Request} from "../models/index.js"
+import {User,Review,ReviewImage, Request,Notification} from "../models/index.js"
 
 
 
@@ -100,6 +100,25 @@ export const deleteRequest=async(req,res)=>{
     }
     
     return res.status(StatusCodes.OK).json({msg:"request_deleted"})
+    }catch(err) {
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
+    }
+}
+
+export const getUserNotifications=async(req,res)=>{
+    try{
+    const notifications=await Notification.findAll({where:{userId:req.userId},order:[["updatedAt","DESC"]]});
+    console.log(notifications)
+    return res.status(StatusCodes.OK).json(notifications);
+    }catch(err) {
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
+    }
+}
+
+export const openNotification=async(req,res)=>{
+    try{
+    await Notification.update({viewed:true},{where:{userId:req.userId}});
+    return res.status(StatusCodes.OK).json({msg:"notification_viewed"});
     }catch(err) {
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
     }

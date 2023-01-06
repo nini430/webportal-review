@@ -187,7 +187,7 @@ const updateMutation=useMutation(async(review)=>{
         imgs=await upload();
     }
 
-    return axiosFetch.put(`/reviews/edit/${id}`,{...review,addedImages:imgs,deletedImages:deletedImgs})
+    return axiosFetch.put(`/reviews/edit/${id}`,{...review,addedImages:imgs,deletedImages:deletedImgs},{withCredentials:true})
     
 },{
   onSuccess:({data})=>{
