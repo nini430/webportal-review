@@ -132,6 +132,7 @@ export const userColumns=[
   {
     Header:"Member Since",
     accessor:"createdAt",
+    Cell:({value})=>moment(value).format("L")
 
   },
   {

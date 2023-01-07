@@ -21,7 +21,7 @@ const Reviews = () => {
   })
   if(isLoading) return <ClipLoader size={150}/>
   return (
-    <div className="p-5">
+    <div className="adminLayout">
       <h1>List Of Reviews</h1>
       <TableComponent reviews data={data?.data} columns={adminReviewColumns}/>
     </div>

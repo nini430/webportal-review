@@ -22,12 +22,15 @@ const notificationsSlice=createSlice({
         },
         replaceNotification:(state,{payload})=>{
             state.notifications=state.notifications.map(item=>item.id===payload.id?payload:item);
+        },
+        clearNotifications:(state)=>{
+            state.notifications=[];
         }
         
     }
 })
 
-export const {addNotification,getNotifications,removeNotifications,replaceNotification}=notificationsSlice.actions;
+export const {addNotification,getNotifications,removeNotifications,replaceNotification,clearNotifications}=notificationsSlice.actions;
 
 export default notificationsSlice.reducer;
 

@@ -48,7 +48,7 @@ const AuthForm = ({ isRegister, admin }) => {
   };
 
   const loginHandler=()=>{
-      dispatch(authStart({email:values.email,password:values.password,adminPin:values.adminPin,admin}));
+      dispatch(authStart({email:values.email,password:values.password,adminPin:values.adminPin,admin:admin?true:false}));
       
   }
 
@@ -271,6 +271,7 @@ const AuthForm = ({ isRegister, admin }) => {
           setErrors={setErrors}
         />
       )}
+     
       {forgetModal && <ForgetModal show={forgetModal} onHide={()=>setForgetModal(false)}/>}
       
     </Form>

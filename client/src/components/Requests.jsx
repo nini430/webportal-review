@@ -27,29 +27,25 @@ const Requests = () => {
     }
   },[currentUser,navigate])
 
-  const {isLoading}=useQuery(["requests"],()=>{
-    return axiosFetch.get('/admin/requests',{withCredentials:true})
-  },{
-    onSuccess:({data})=>{
-        dispatch(getRequests(data));
-    }
-  })
- 
+  
 
-
+let user;
 const respondToRequest=useMutation((body)=>{
-    return axiosFetch.put(`/admin/respond/${body.userId}`,{status:body.status},{withCredentials:true})
+  user=body.userId;
+    return axiosFetch.put(`/admin/respond/${body.userId}/?position=${body.position}`,{status:body.status},{withCredentials:true})
 },{
-  onSuccess:()=>{
-    client.invalidateQueries(["requests"])
+  onSuccess:({data})=>{
+    
+    socket.emit("respond_request",{recipient:user,request:data.request,adminPin:data.adminPin})
+    client.invalidateQueries(["requests"]);
   }
 })
 
-  if(isLoading) return <div className="p-5"><ClipLoader size={150}/></div>
+ 
   
   if(!requests.length) return <div className="p-5"><h1>No Requests So far</h1></div>
   return (
-    <div className='requestPage p-5 d-flex flex-column gap-3'>
+    <div className='requestPage  d-flex flex-column gap-3 adminLayout'>
       <h1>Requests</h1>
       {requests.map(item=>{
       return (
@@ -63,10 +59,10 @@ const respondToRequest=useMutation((body)=>{
           <div className="icons">
            
            <OverlayTrigger  placement="bottom" overlay={<Tooltip>Accept</Tooltip>}>
-           <Button ><MdDone role="button" color="limegreen"/></Button>
+           <Button onClick={()=>respondToRequest.mutate({userId:item.user.uuid,status:"fulfilled",position:item.position})} ><MdDone role="button" color="limegreen"/></Button>
            </OverlayTrigger>
           <OverlayTrigger placement="bottom" overlay={<Tooltip>Decline</Tooltip>}>
-          <Button onClick={()=>respondToRequest.mutate({userId:item.user.uuid,status:"rejected"})} ><RxCross2 role="button" color="orangered"/></Button> 
+          <Button onClick={()=>respondToRequest.mutate({userId:item.user.uuid,status:"rejected",position:item.position})} ><RxCross2 role="button" color="orangered"/></Button> 
             </OverlayTrigger> 
           </div>
           

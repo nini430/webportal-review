@@ -46,7 +46,7 @@ const TableComponent = ({columns,data,users,deleted,admins,refetch}) => {
   return (
     <div className='d-flex flex-column align-items-center'>
       {users && (
-        <div className="actions align-self-end mb-2 d-flex gap-1">
+        <div className="actions align-self-end d-flex align-items-center mb-2 d-flex gap-1">
         <Button onClick={()=>blockOrUnblockMutation.mutate({userIds,status:"blocked"})}><ImBlocked/></Button>
         <Button onClick={()=>blockOrUnblockMutation.mutate({userIds,status:"active"})}><CgUnblock/></Button>
         <Button onClick={()=>blockOrUnblockMutation.mutate({userIds,status:"deleted"})} className='delete'><MdDelete /></Button>

@@ -46,8 +46,8 @@ export const registerUser = async (req, res) => {
       gender,
       email,
       password,
-      profileImg,
       role,
+      profileImg,
       adminPin: null,
     });
 
@@ -66,18 +66,24 @@ export const registerUser = async (req, res) => {
 };
 
 export const loginUser=async(req,res)=>{
-  let request;
+  console.log(req.body,"Body")
+  let requests;
   const {email,password,adminPin,admin}=req.body;
   const {isInvalid,errors}=loginValidator(admin?{email,password,adminPin}:{email,password});
   if(isInvalid) return res.status(StatusCodes.BAD_REQUEST).json(errors);
   let user;
+  console.log(admin,"admim")
   try{
    if(admin) {
+    console.log("admini sworia")
     user=await User.findOne({where:{email,adminPin}});
    }else{
     user=await User.findOne({where:{email}});
+    if(user.adminPin) {
+      return res.status(StatusCodes.FORBIDDEN).json({msg:"this_admin_account"});
+    }
     if(user) {
-      request=await Request.findOne({where:{userId:user?.id,status:{[Op.not]:"pending"}}})
+      requests=await Request.findOne({where:{userId:user?.id,status:{[Op.not]:"pending"}}})
     }
     
     
@@ -99,7 +105,10 @@ export const loginUser=async(req,res)=>{
 
    const {password,...others}=user.toJSON();
    const notifications=await Notification.findAll({where:{userId:user.id},order:[["id","DESC"]]});
-   return res.cookie("accessToken",token,{httpOnly:true,path:"/"}).status(StatusCodes.OK).json({user:others,notifications});
+   if(req.role!=="admin") {
+    requests=await Request.findAll({where:{status:{[Op.not]:"pending"},userId:user.id},order:[["createdAt","DESC"]]})
+   }
+   return res.cookie("accessToken",token,{httpOnly:true,path:"/"}).status(StatusCodes.OK).json({user:others,notifications,requests});
   }catch(err) {
     console.log(err);
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);

@@ -24,8 +24,12 @@ const Notification=sequelize.define("notification",{
     },
     value:{
         type:DataTypes.STRING
+    },
+    updatedAt:{
+        type:DataTypes.DATE,
+        allowNull:false
     }
-})
+},{timestamps:false})
 
 export default Notification;
 

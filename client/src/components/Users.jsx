@@ -18,7 +18,7 @@ const Users = () => {
       navigate("/")
     }
   },[currentUser,navigate])
-  const client=useQueryClient();
+  
     const {isLoading,data}=useQuery(["users"],()=>{
         return axiosFetch.get("/admin/allusers/?role=user",{withCredentials:true})
     })
@@ -28,7 +28,7 @@ const Users = () => {
 
  
   return (
-    <div className='p-5'>
+    <div className='adminLayout'>
         <h1 className='mb-3'>List Of Users</h1>
         <TableComponent users   data={data?.data} columns={userColumns}/>
     </div>

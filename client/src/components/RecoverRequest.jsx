@@ -17,12 +17,18 @@ const RecoverRequest = ({show,onHide,email}) => {
     onSuccess:({data})=>{
       toast.success(data.msg,toastOptions);
       onHide();
+    },
+    onError:(err)=>{
+      if(err.response.data) {
+        toast.error(err.response.data.msg,toastOptions);
+      }
+      onHide();
     }
   })  
   return (
     <Modal show={show} onHide={onHide}>
         <Modal.Header closeButton>Request Account recovery</Modal.Header>
-        <Modal.Body>Admin deleted your account for some reasons. All you can do is to request admin to recover your account</Modal.Body>
+        <Modal.Body>Admin deleted your account for some reasons. All you can do is to request admin to recover your account,Please check your email for our feedback</Modal.Body>
        
        <Modal.Footer>
        <Button onClick={()=>mutate()}>Request</Button>

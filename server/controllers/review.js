@@ -180,6 +180,7 @@ export const rateReview = async (req, res) => {
       notification=await Notification.findOne({where:{reaction:"rate",userId:author.id,subjectId:review.uuid,madeBy:ratedBy.uuid}});
       notification.value=`${rating}`;
       notification.viewed=false;
+      notification.updatedAt=Date.now()
       await notification.save(); 
         rated.rating=rating;
         await rated.save();
@@ -196,7 +197,8 @@ export const rateReview = async (req, res) => {
             madeBy:ratedBy.uuid,
             subjectId:review.uuid,
             message:`${ratedBy.firstName} ${ratedBy.lastName} rated  to your review`,
-            value:`${rating}`
+            value:`${rating}`,
+            updatedAt:Date.now()
           })
         }
        
@@ -267,7 +269,8 @@ export const likeReview=async(req,res)=>{
           message:`${likedBy.firstName} ${likedBy.lastName} liked your review: ${review.reviewName}`,
           subjectId:review.uuid,
           madeBy:likedBy.uuid,
-          reaction:"like"
+          reaction:"like",
+          updatedAt:Date.now()
         })
       
       }

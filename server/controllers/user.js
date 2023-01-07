@@ -1,5 +1,6 @@
 import { StatusCodes } from "http-status-codes"
 import bcrypt from "bcryptjs"
+import {Op} from "sequelize"
 
 import {User,Review,ReviewImage, Request,Notification} from "../models/index.js"
 
@@ -60,6 +61,7 @@ export const addBio=async(req,res)=>{
 }
 
 export const makeAdminRequest=async(req,res)=>{
+    
     try{
         const request=await Request.findOne({where:{userId:req.userId}});
      
@@ -92,18 +94,7 @@ export const makeUserRequest=async(req,res)=>{
         }
 }
 
-export const deleteRequest=async(req,res)=>{
-    try{
-    const request=await Request.findOne({where:{userid:req.userId}});
-    if(request) {
-        await request.destroy();
-    }
-    
-    return res.status(StatusCodes.OK).json({msg:"request_deleted"})
-    }catch(err) {
-        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
-    }
-}
+
 
 export const getUserNotifications=async(req,res)=>{
     try{
@@ -115,10 +106,30 @@ export const getUserNotifications=async(req,res)=>{
     }
 }
 
+export const getUserRequests=async(req,res)=>{
+    try{
+    const requests=await Request.findAll({where:{userId:req.userId,status:{[Op.not]:"pending"}},order:[["createdAt","DESC"]]});
+    return res.status(StatusCodes.OK).json(requests);
+    }catch(err) {
+        console.log(err);
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
+    }
+}
+
+
 export const openNotification=async(req,res)=>{
     try{
     await Notification.update({viewed:true},{where:{userId:req.userId}});
     return res.status(StatusCodes.OK).json({msg:"notification_viewed"});
+    }catch(err) {
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
+    }
+}
+
+export const openRequests=async(req,res)=>{
+    try{
+    await Request.update({viewed:true},{where:{userId:req.userId}});
+    return res.status(StatusCodes.OK).json({msg:"request_viewed"});
     }catch(err) {
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
     }

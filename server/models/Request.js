@@ -11,6 +11,10 @@ const Request=sequelize.define("request",{
     status:{
         type:DataTypes.STRING,
         defaultValue:"pending"
+    },
+    viewed:{
+        type:DataTypes.BOOLEAN,
+        defaultValue:false
     }
 })
 

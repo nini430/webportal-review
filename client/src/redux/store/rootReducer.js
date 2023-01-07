@@ -30,6 +30,10 @@ const notificationConfig={
     storage
 }
 
+const requestConfig={
+    key:"request",
+    storage
+}
 
 
 const rootReducer=combineReducers({
@@ -38,7 +42,7 @@ const rootReducer=combineReducers({
     review:reviewReducer,
     profile:profileReducer,
     search:searchReducer,
-    request:requestReducer,
+    request:persistReducer(requestConfig,requestReducer),
     notification:persistReducer(notificationConfig,notificationReducer),
     socket:socketReducer,
     

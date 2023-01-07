@@ -162,7 +162,7 @@ const likeReview=useMutation(()=>{
     if(!data.delete) {
       socket?.emit("react_notify",{recipient:data.user,notification:data.notification});
     }else{
-      socket?.emit("unlike",{recipient:data.user,notification:data.notification})
+      socket?.emit("unreact",{recipient:data.user,notification:data.notification})
     }
    
     console.log(data);
@@ -175,6 +175,9 @@ const commentReview=useMutation((comment)=>{
 },{
   onSuccess:({data})=>{
     socket.emit("add_comment",{data,sender:currentUser.uuid});
+    if(data.notification) {
+      socket.emit("react_notify",{recipient:data.user,notification:data.notification})
+    }  
     setComment("");
     dispatch(getComments({comments:[data],append:true}));
     

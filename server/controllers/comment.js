@@ -85,8 +85,11 @@ export const getComments = async (req, res) => {
 
 export const addComment = async (req, res) => {
   const { comment } = req.body;
+  let notification;
   try {
     const review = await Review.findOne({ where: { uuid: req.params.id } });
+    const author=await User.findByPk(review.userId);
+    const commentedBy=await User.findByPk(req.userId);
     if (!review)
       return res
         .status(StatusCodes.NOT_FOUND)
@@ -96,6 +99,16 @@ export const addComment = async (req, res) => {
       userId: req.userId,
       comment,
     });
+    if(author.id!==commentedBy.id) {
+        notification=await Notification.create({
+          userId:author.id,
+          subjectId:review.uuid,
+          madeBy:commentedBy.uuid,
+          message:`${commentedBy.firstName} ${commentedBy.lastName} commented on your review ${review.reviewName}`,
+          updatedAt:Date.now(),
+          reaction:"addComment"
+        })
+    }
     const user = await newComment.getUser();
     console.log(user);
     const commentRef = {
@@ -113,7 +126,7 @@ export const addComment = async (req, res) => {
     review.commentsCount++;
     console.log(newComment.toJSON());
     await review.save();
-    return res.status(StatusCodes.CREATED).json({comment:commentRef,users:[]});
+    return res.status(StatusCodes.CREATED).json({comment:commentRef,users:[],notification,user:author.uuid});
   } catch (err) {
     console.log(err);
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
@@ -204,6 +217,7 @@ export const reactComment = async (req, res) => {
       if(notification) {
         notification.value=emoji;
         notification.viewed=false;
+        notification.updatedAt=Date.now();
         await notification.save();
       }
      
@@ -227,7 +241,9 @@ export const reactComment = async (req, res) => {
           subjectId:comment.uuid,
           reaction:"react",
           message:`${reactedBy.firstName} ${reactedBy.lastName} reacted to your comment`,
-          value:emoji
+          value:emoji,
+          updatedAt:Date.now()
+
       })
       }
       
@@ -247,20 +263,27 @@ export const reactComment = async (req, res) => {
 export const unreactComment=async(req,res)=>{
   const {reviewId,commentId}=req.params;
   let oldEmoji;
+  let notification;
     try{
       const review=await Review.findOne({where:{uuid:reviewId}});
       if(!review) return res.status(StatusCodes.NOT_FOUND).json({msg:"review_not_found"});
       const comment=await Comment.findOne({where:{uuid:commentId}});
       if(!comment) return res.status(StatusCodes.NOT_FOUND).json({msg:"comment_not_found"});
+      const author=await User.findByPk(comment.userId);
+      const unreactedBy=await User.findByPk(req.userId);
       const reacted=await React.findOne({where:{commentId:comment.commentId,userId:req.userId}});
 
       if(!reacted) return res.status(StatusCodes.BAD_REQUEST).json({msg:"no_reaction"});
+      if(author.id!==unreactedBy.id) {
+          notification=await Notification.findOne({where:{userId:author.id,subjectId:comment.uuid,reaction:"react",madeBy:unreactedBy.uuid}});
+          await notification.destroy();
+      }
       oldEmoji=reacted.emoji;
       await reacted.destroy()
       comment.totalEmojiCount--;
       comment[reacted.emoji+"React"]--;
       await comment.save();
-      return res.status(StatusCodes.OK).json({msg:"comment_unreacted",oldEmoji})
+      return res.status(StatusCodes.OK).json({msg:"comment_unreacted",oldEmoji,notification,user:author.uuid})
     }catch(err) {
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
     }

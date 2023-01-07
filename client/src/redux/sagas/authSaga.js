@@ -3,6 +3,7 @@ import {all,take,call,put,fork} from "redux-saga/effects";
 import {authStart,authSuccess,authError} from "../slices/auth"
 import { loginUser } from "../../utils/api";
 import { getNotifications } from "../slices/notifications";
+import { getRequests } from "../slices/requests";
 
 
 function* login(payload) {
@@ -10,6 +11,7 @@ function* login(payload) {
     const response=yield call(loginUser,payload);
     yield put(authSuccess(response.data.user));
     yield put(getNotifications(response.data.notifications))
+    yield put(getRequests(response.data.requests))
     }catch(err) {
         if(err.response?.data) {
             yield put(authError(err.response.data));

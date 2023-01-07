@@ -29,10 +29,10 @@ const Settings = () => {
    
   return (
    <div className="settings">
-    <Button disabled={currentUser.request} onClick={()=>requestMutation.mutate()} className="adminBtn">Request To Be An Admin <RiAdminFill/></Button>
+    <Button  onClick={()=>requestMutation.mutate()} className="adminBtn">Request To Be An Admin <RiAdminFill/></Button>
     <h1>Update Your Personal Info</h1>
       <div className="attributes">
-        <Parameter label="First Name" accessor="firstName" value={currentUser.firstName}  />
+        <Parameter label="First Name" accessor="firstName" value={currentUser?.firstName}  />
         <Parameter label="Last Name" accessor="lastName" value={currentUser.lastName}  />
         {!currentUser.withSocials && <Parameter label="Password" accessor="password" value="*******" isPassword  /> }
       </div>

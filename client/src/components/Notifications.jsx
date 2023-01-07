@@ -20,6 +20,7 @@ const Notifications = () => {
             dispatch(getNotifications(data));
         }
     })
+    
   return (
     <div className='position-absolute popover notify d-flex flex-column'>
     <div>
@@ -27,7 +28,7 @@ const Notifications = () => {
             notifications.map(notif=>(
                 <div key={notif.id} className="notif">
                     <p>{notif.message} {notif.reaction==="rate"&&<Rating readonly allowFraction initialValue={notif.value}/>} {notif.reaction==="react" && getReaction(notif.value) }</p>
-                    <span>{moment(notif.updatedAt).fromNow()}</span>
+                    <span>{moment(notif.createdAt).fromNow()}</span>
                     <hr/>
                 </div>
             ))

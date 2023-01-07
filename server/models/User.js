@@ -81,6 +81,7 @@ User.init({
     },
     role:{
     type:DataTypes.STRING,
+    allowNull:false,
     validate:{
         isIn:{
             args:[["admin","user"]],
@@ -91,14 +92,26 @@ User.init({
     bio:{
         type:DataTypes.STRING(400),
     },
+    adminPin:{
+        type:DataTypes.STRING,
+        set() {
+            const role=this.getDataValue("role");
+            if(role==="admin") {
+                this.setDataValue("adminPin",nanoid());
+            }
+        }  
+    },
     profileImg:{
         type:DataTypes.STRING,
         allowNull:false,
         set(value) {
             const profUpdated=this.getDataValue("profUpdated");
-            const role=this.getDataValue("role");
+            
             if(!value&&!profUpdated) {
+                const role=this.getDataValue("role");
                 const gender=this.getDataValue("gender");
+                console.log(gender,"genderi");
+                console.log(role,"role")
                 if(role==="user") {
                     this.setDataValue("profileImg",gender==="male"?"manAvatar.png":"womanAvatar.jpg");
                 }else{
@@ -115,15 +128,6 @@ User.init({
         type:DataTypes.BOOLEAN,
         defaultValue:false 
        },
-    adminPin:{
-        type:DataTypes.STRING,
-        set() {
-            const role=this.getDataValue("role");
-            if(role==="admin") {
-                this.setDataValue("adminPin",nanoid());
-            }
-        }  
-    },
     withSocials:{
         type:DataTypes.BOOLEAN,
         defaultValue:false

@@ -1,6 +1,8 @@
 import {StatusCodes} from "http-status-codes"
 import { Op } from "sequelize";
 import {Request, User} from "../models/index.js"
+import {nanoid} from "nanoid"
+import { sendEmail } from "../utils/sendEmail.js"
 
 export const getAllUsers=async(req,res)=>{
     const {role,deleted}=req.query;
@@ -28,6 +30,8 @@ export const blockUnblockOrDelete=async(req,res)=>{
                 [Op.in]:req.body.userIds
             }
         }})
+        await Request.destroy({where:{userId:{[Op.in]:req.body.userIds}}});
+        
         return res.status(StatusCodes.OK).json({msg:"users_statuses_updated"});
     }catch(err) {
         console.log(err);
@@ -60,14 +64,43 @@ export const getAdminRequests=async(req,res)=>{
 }
 
 export const respondToRequest=async(req,res)=>{
-    console.log("aq shedsi")
+    let savedUser;
     const {status}=req.body;
+    const {position}=req.query;
     try{
         const user=await User.findOne({where:{uuid:req.params.id}})
         const request=await user.getRequest();
     request.status=status;
     await request.save();
-    return res.status(StatusCodes.OK).json({msg:"response_recorded"})
+
+    if(status==="fulfilled"&&position==="admin") {
+        user.adminPin=nanoid();
+        user.role="admin";
+      savedUser=await user.save();
+       console.log(savedUser.toJSON(),"saved saved");
+    }
+
+    if(status==="fulfilled" && position==="user") {
+        user.status="active";
+        await user.save();
+            sendEmail({
+                to:user.email,
+                subject:`${user.firstName}, You account had beeen reactivated!`,
+                text:"Your account reactivation is done! You can now go to your account anytime you want"
+            })
+    }
+
+    if(status==="rejected" && position==="user") {
+        sendEmail({
+            to:"ninigogatishvili1@gmail.com",
+            subject:`${user.firstName}, Your account reactivation request has been reject`,
+            text:`If you have some further complains you can send us an E-mail with your explanation`
+        })
+    }
+
+
+
+    return res.status(StatusCodes.OK).json({request,adminPin:savedUser?.adminPin});
     }catch(err) {
         console.log(err);
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);

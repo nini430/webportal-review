@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import jsCookie from "js-cookie"
 import { Form, InputGroup, Nav, Navbar, Button,NavDropdown, OverlayTrigger, Tooltip} from "react-bootstrap"
 import {Link, useNavigate} from "react-router-dom"
-import {BsFillMoonStarsFill,BsFillSunFill,BsSearch,BsMessenger,BsBellFill} from "react-icons/bs"
+import {BsFillMoonStarsFill,BsFillSunFill,BsSearch,BsBellFill, BsPeopleFill} from "react-icons/bs"
 import {BiLogOut} from "react-icons/bi"
 import {TbEditCircle} from "react-icons/tb"
 import ReactSwitch from "react-switch"
@@ -11,7 +11,7 @@ import i18next from 'i18next'
 import {useDispatch,useSelector} from "react-redux"
 import axios from "axios"
 import {ToastContainer,toast} from "react-toastify"
-import {useInfiniteQuery, useMutation, useQueryClient} from "@tanstack/react-query"
+import { useMutation, useQueryClient} from "@tanstack/react-query"
 
 import { countries } from '../utils/countries'
 import {changeTheme} from "../redux/slices/theme"
@@ -23,6 +23,9 @@ import {axiosFetch} from ".././axios"
 import { getSearchResults } from '../redux/slices/search'
 import { addNotification, removeNotifications, replaceNotification } from '../redux/slices/notifications'
 import Notifications from './Notifications'
+import { addRequest, clearRequest} from '../redux/slices/requests'
+import Admissions from './Admissions'
+
 
 
 const NavBar = () => {
@@ -30,6 +33,7 @@ const NavBar = () => {
   const {currentUser}=useSelector(state=>state.auth);
   const {socket}=useSelector(state=>state.socket)
   const {notifications}=useSelector(state=>state.notification)
+  const {adminPin,requests}=useSelector(state=>state.request)
   const [search,setSearch]=useState("");
   console.log(currentUser);
   const navigate=useNavigate(); 
@@ -37,17 +41,18 @@ const NavBar = () => {
   const [showDropDown,setShowDropDown]=useState(false);
   const dispatch=useDispatch();
   const [showNots,setShowNots]=useState(false)
+  const [showRequests,setShowRequests]=useState(false);
   const lang=jsCookie.get("i18next")==="en"?"gb":jsCookie.get("i18next");
   const {t}=useTranslation();
   const unviewedNots=notifications.filter(not=>not?.viewed===false);
+  const unviewedReqs=requests.filter(item=>item.viewed===false);
 
   useEffect(()=>{
-    console.log("Fine")
     socket?.on("receive_notify",(data)=>{
       console.log("receive_notify",data)
       dispatch(addNotification(data));
     })
-    socket?.on("receive_unlike",(data)=>{
+    socket?.on("receive_unreact",(data)=>{
       console.log(data);
       dispatch(removeNotifications(data))
     })
@@ -56,8 +61,17 @@ const NavBar = () => {
       console.log("replace")
         dispatch(replaceNotification(data))
     })
+    if(currentUser&&currentUser?.role==="user") {
+      socket?.on("receive_respond",(data)=>{
+        console.log(data);
+        dispatch(addRequest({request:data.request,adminPin:data.adminPin}))
+    })
+    }
+   
+
     
-  },[socket,dispatch])
+    
+  },[socket,dispatch,currentUser?.role])
 
 
   const openNotification=useMutation(()=>{
@@ -73,11 +87,36 @@ const NavBar = () => {
   })
 
   const logoutHandler=async()=>{
-      const response=await axios.get(`http://localhost:8000/${currentUser.withSocials?'auth/logout':'api/v1/auth/logout'}`,{withCredentials:true})
-      toast.success(response.data.msg,toastOptions);
-      dispatch(logout())
-      navigate("/login")
-  }
+    const response=await axios.get(`http://localhost:8000/${currentUser.withSocials?'auth/logout':'api/v1/auth/logout'}`,{withCredentials:true})
+    toast.success(response.data.msg,toastOptions);
+    dispatch(clearNotification())
+    dispatch(clearRequest())
+    dispatch(logout())
+    
+    navigate("/login")
+
+}
+
+  const openRequest=useMutation(()=>{
+    setShowRequests(!showRequests);
+    if(unviewedReqs.length) {
+      return axiosFetch.put("/user/openReqs",{},{withCredentials:true})
+    }
+    
+  },
+  {
+    onSuccess:()=>{
+      if(adminPin) {
+        setTimeout(()=>{
+          
+          logoutHandler();
+        },2000)
+      }
+      client.invalidateQueries(["userRequests"])
+    }
+  })
+
+ 
 
   const searchMutation=useMutation(()=>{
       return axiosFetch.get(`/reviews/search/?text=${search}`)
@@ -148,13 +187,18 @@ const NavBar = () => {
                 ))}
               
             </NavDropdown>
-            <BsMessenger className='icon' role="button" size={25}/>
+         {currentUser&&currentUser?.role!=="admin" && (<> <div onClick={()=>openRequest.mutate()} className="notification position-relative">
+            <BsPeopleFill className='icon' role="button" size={25}/>
+           {unviewedReqs.length>0 ? <div className='circle'>{unviewedReqs.length>0?unviewedReqs.length:""}</div>:""} 
+           {showRequests ? <Admissions/>:""}
+            </div>
+           
           
            <div onClick={()=>openNotification.mutate()}    className="notification position-relative">
             <BsBellFill className='icon' role="button" size={25}/>
             {unviewedNots.length ? <div className='circle'>{unviewedNots.length?unviewedNots.length:""}</div>:""}
             {showNots ? <Notifications/>:""}
-            </div>
+            </div></>)}  
            
             <OverlayTrigger placement='bottom' overlay={<Tooltip>Write a Review</Tooltip>} >
             <Link to="/write">

@@ -3,7 +3,7 @@ import {createSlice} from "@reduxjs/toolkit"
 
 const initialState={
     requests:[],
-    requestCount:0
+    adminPin:null
 }
 const requestSlice=createSlice({
     name:"request",
@@ -11,13 +11,18 @@ const requestSlice=createSlice({
     reducers:{
         getRequests:(state,action)=>{
             state.requests=action.payload;
-            state.requestCount=action.payload.length
         },
-        addCount:(state)=>{
-            state.requestCount=state.requestCount+1
+        clearRequest:(state)=>{
+            state.requests=[];
+            state.adminPin=null;
+          
+        },
+        addRequest:(state,{payload})=>{
+            state.requests=[...state.requests,payload.request]
+            state.adminPin=payload.adminPin;
         }
     }
 })
-export const {getRequests,addCount}=requestSlice.actions;
+export const {getRequests,clearRequest,addRequest}=requestSlice.actions;
 export default requestSlice.reducer;
 

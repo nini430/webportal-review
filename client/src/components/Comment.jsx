@@ -86,7 +86,10 @@ const Comment = ({comment:{comment,users,reacts}}) => {
 
   },{
     onSuccess:({data})=>{
-      socket.emit("unreact_comment",{id:comment.commentId,userId:currentUser.id,oldEmoji:data.oldEmoji})
+      socket.emit("unreact_comment",{id:comment.commentId,userId:currentUser.id,oldEmoji:data.oldEmoji});
+      if(data.notification) {
+        socket.emit("unreact",{recipient:data.user,notification:data.notification});
+      }
       dispatch(unreactComment({id:comment.commentId,userId:currentUser.id,oldEmoji:data.oldEmoji}))
     }
   })

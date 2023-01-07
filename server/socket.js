@@ -49,12 +49,16 @@ export default (server)=>{
           io.to(recipient).emit("receive_notify",notification);
        })
 
-       socket.on("unlike",({recipient,notification})=>{
-            io.to(recipient).emit("receive_unlike",notification);
+       socket.on("unreact",({recipient,notification})=>{
+            io.to(recipient).emit("receive_unreact",notification);
        })
 
        socket.on("react_replace",({recipient,notification})=>{
           io.to(recipient).emit("receive_replace",notification);
+       })
+
+       socket.on("respond_request",({recipient,request,adminPin})=>{
+         io.to(recipient).emit("receive_respond",{request,adminPin});
        })
 
        

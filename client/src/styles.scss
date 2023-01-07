@@ -1123,7 +1123,7 @@ body {
       padding:3px 5px;
 
       .table-responsive {
-        min-width:400px!important;
+        min-width:100px!important;
         max-width:800px!important;
       }
     }
@@ -1132,8 +1132,8 @@ body {
       flex-direction: column;
       
       .table-responsive {
-        max-width:400px!important;
-      min-width:200px!important;
+        max-width:100px!important;
+      min-width:100px!important;
       }
     }
   
@@ -1463,6 +1463,14 @@ body {
     background:themed("bgSoft");
     color:themed("color");
 
+    .adminLayout {
+      padding:30px;
+
+      @include mobile {
+        padding:5px;
+      }
+    }
+
     .sidebar {
       position:sticky;
       top:70px;
@@ -1471,6 +1479,10 @@ body {
       background:themed("bg");
       min-height:calc(100vh - 70px);
       padding:20px;
+
+  
+
+      
       
 
       .adminProfile {
@@ -1523,8 +1535,18 @@ body {
       }
     }
 
+    @include mobile {
+      .table-responsive {
+        max-width:200px!important;
+       
+      }
+    }
+    
+
     table {
       border:1px solid themed("color");
+      
+      
 
 
 
