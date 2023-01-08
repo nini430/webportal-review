@@ -6,8 +6,10 @@ import { axiosFetch } from '../axios';
 import { userColumns } from '../columns';
 import TableComponent from './Table';
 import {ClipLoader} from "react-spinners"
+import { useTranslation } from 'react-i18next';
 
 const DeletedUsers = () => {
+  const {t}=useTranslation();
   const {currentUser}=useSelector(state=>state.auth);
   const navigate=useNavigate();
 
@@ -22,7 +24,7 @@ const DeletedUsers = () => {
     if(isLoading) return <ClipLoader size={150}/>
   return (
     <div className='p-5'>
-        <h1>Deleted Users</h1>
+        <h1>{t("deleted_users")}</h1>
         <TableComponent refetch={refetch} deleted columns={userColumns} data={data?.data}/>
     </div>
   )

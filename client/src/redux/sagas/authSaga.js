@@ -9,6 +9,9 @@ import { getRequests } from "../slices/requests";
 function* login(payload) {
     try {
     const response=yield call(loginUser,payload);
+    if(response.data.twoFA) {
+        window.location=`/twofactor?${payload.email}`
+    }
     yield put(authSuccess(response.data.user));
     yield put(getNotifications(response.data.notifications))
     yield put(getRequests(response.data.requests))

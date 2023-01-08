@@ -61,6 +61,14 @@ export default (server)=>{
          io.to(recipient).emit("receive_respond",{request,adminPin});
        })
 
+       socket.on("typing",({sender,review})=>{
+            io.except(sender).emit("receive_typing",review);
+       })
+       socket.on("noTyping",({sender,review})=>{
+            io.except(sender).emit("receive_notyping",review);
+       })
+
+
        
 
        

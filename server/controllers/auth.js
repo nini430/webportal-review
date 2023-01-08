@@ -2,6 +2,7 @@ import { StatusCodes } from "http-status-codes";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import crypto from "crypto"
+import twilio from "twilio";
 
 import {User,Review,ReviewImage,React,Request,Notification} from "../models/index.js";
 import { loginValidator } from "../utils/validators.js";
@@ -9,7 +10,7 @@ import {keys} from "../env.js"
 import { sendEmail } from "../utils/sendEmail.js";
 import { Op } from "sequelize";
 
-
+const client=twilio(keys.ACCOUNT_SID,keys.AUTH_TOKEN);
 export const registerUser = async (req, res) => {
   let {
     firstName,
@@ -100,11 +101,24 @@ export const loginUser=async(req,res)=>{
   if(user.status==="deleted") {
     return res.status(StatusCodes.BAD_REQUEST).json({msg:"your_account_deleted",delete:true});
   }
+  let code=crypto.randomBytes(3).toString("hex");
+  user.twoFACode=code;
+  user.twoFACodeExpire=Date.now()+(3*(60*1000));
+  const savedUser=await user.save();
+  if(user.twoFA) {
+     client.messages.create({
+      from:keys.TWILLIO_FROM,
+      to:"+"+user.phone,
+      body:`This is your code verification code ${savedUser.twoFACode}`
+     })
+
+     return res.status(StatusCodes.OK).json({twoFA:true,success:true})
+  }
 
    const token=jwt.sign({id:user.id},keys.JWT_SECRET);
 
    const {password,...others}=user.toJSON();
-   const notifications=await Notification.findAll({where:{userId:user.id},order:[["id","DESC"]]});
+   const notifications=await Notification.findAll({where:{userId:user.id},order:[["updatedAt","DESC"]]});
    if(req.role!=="admin") {
     requests=await Request.findAll({where:{status:{[Op.not]:"pending"},userId:user.id},order:[["createdAt","DESC"]]})
    }

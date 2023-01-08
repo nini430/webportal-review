@@ -3,8 +3,10 @@ import {Modal,Nav,Tab,Card,Image} from "react-bootstrap"
 import { keys } from '../env'
 import { getReactionName } from '../utils/reactions'
 import {Rating} from "react-simple-star-rating"
+import {useTranslation} from "react-i18next"
 
 const ReactModal = ({isModalOpen,close,totalReacts,text,reacts,users,reactionProp,rate,like}) => {
+    const {}=useTranslation();
     const [activeKey,setActiveKey]=useState(reacts[0])
   return (
     <Modal  show={isModalOpen} onHide={close}>

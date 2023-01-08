@@ -4,8 +4,10 @@ import {Button, Form, Modal} from "react-bootstrap"
 import { axiosFetch } from '../axios'
 import {ToastContainer,toast} from "react-toastify"
 import {toastOptions} from "../utils/toastOptions"
+import { useTranslation } from 'react-i18next'
 
 const ForgetModal = ({show,onHide}) => {
+  const {t}=useTranslation();
   const [email,setEmail]=useState("")
   const [message,setMessage]=useState("");
 
@@ -25,19 +27,19 @@ const ForgetModal = ({show,onHide}) => {
   })
   return (
     <Modal show={show} onHide={onHide}>
-      <Modal.Header closeButton>Update Password</Modal.Header>
+      <Modal.Header closeButton>{t("update_password")}</Modal.Header>
       <Modal.Body>
         <Form onSubmit={e=>e.preventDefault()}>
           <Form.Group>
-            <Form.Label>Please,Enter the E-mail of your account below. We will send you verification link to proceed password reset</Form.Label>
+            <Form.Label>{t("enter_email")}</Form.Label>
             <Form.Control placeholder="user@gmail.com" value={email} type="email" onChange={e=>setEmail(e.target.value)} />
             {message.email && <p className='error'>{message.email}</p>}
           </Form.Group>
         </Form>
       </Modal.Body>
       <Modal.Footer>
-        <Button disabled={!email} type="submit" onClick={()=>forgetPassword.mutate({email})} variant="success">Send Email</Button>
-        <Button onClick={onHide} variant='secondary'>Cancel</Button>
+        <Button disabled={!email} type="submit" onClick={()=>forgetPassword.mutate({email})} variant="success">{t("send_email")}</Button>
+        <Button onClick={onHide} variant='secondary'>{t("cancel")}</Button>
       </Modal.Footer>
     </Modal>
   )

@@ -10,6 +10,9 @@ export const keys={
     EMAIL_USERNAME:"apikey",
     EMAIL_PASSWORD:"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",
     EMAIL_FROM:"ninigogatishvili1@gmail.com",
-    
+    ACCOUNT_SID:"AC25001091732a54865ae0f352cfe1ed01",
+    AUTH_TOKEN:"0abb33fa9e7693379d21e4dacc3ce7a6",
+    TWILLIO_FROM:"+15092874065"
 }
+
 

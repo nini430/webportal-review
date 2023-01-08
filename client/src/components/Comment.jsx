@@ -112,33 +112,33 @@ const Comment = ({comment:{comment,users,reacts}}) => {
                 <AnimateKeyframes pause={pause} iterationCount="infinite" play duration={1.5} keyframes={["transform:rotateY(-45deg)","transform:rotateY(90deg)"]}><div onClick={()=>reactCommentMutation.mutate(emoji.name)} onMouseLeave={()=>setPause(false)} onMouseOver={()=>setPause(true)} className='emoji' role="button">{emoji.emoji}</div></AnimateKeyframes>
               ))}
             </div> } 
-          <Button onClick={reacted?()=>unreactCommentMutation.mutate():""} onMouseOver={()=>setShowReactions(true)} className={`react ${reacted}`}  variant="link">{reacted?reacted.charAt(0).toUpperCase()+reacted.substring(1,reacted.length):"Like"}</Button>
+          <Button onClick={reacted?()=>unreactCommentMutation.mutate():""} onMouseOver={()=>setShowReactions(true)} className={`react ${reacted}`}  variant="link">{reacted?t(reacted):t("like")}</Button>
             </div>
               <div className="totalEmojis">
-                  {comment.totalEmojiCount>0 && <OverlayTrigger placement='bottom' overlay={<Tooltip>Click to see who reacted</Tooltip>}><span onClick={()=>setReactedModal(true)} className='text-decoration-underline' role="button">{comment.totalEmojiCount}</span></OverlayTrigger>}
+                  {comment.totalEmojiCount>0 && <OverlayTrigger placement='bottom' overlay={<Tooltip>{t("click_who_reacted")}</Tooltip>}><span onClick={()=>setReactedModal(true)} className='text-decoration-underline' role="button">{comment.totalEmojiCount}</span></OverlayTrigger>}
                   {reacts.map(item=>getReaction(item))}
                   
               </div>
-          {currentUser.id===comment.user.id && <Button onClick={()=>setIsEditMode(true)} variant="link">Edit</Button> }
+          {currentUser.id===comment.user.id && <Button onClick={()=>setIsEditMode(true)} variant="link">{t("edit")}</Button> }
           </div>
         </div>):(
           <InputGroup>
           <Form.Control type="text" value={updatedComment} onChange={e=>setUpdatedComment(e.target.value)} />
-          <Button onClick={()=>editCommentMutation.mutate(updatedComment)} >Save</Button>
-          <Button variant="secondary" onClick={cancelHandler}>Cancel</Button>
+          <Button onClick={()=>editCommentMutation.mutate(updatedComment)} >{t("save")}</Button>
+          <Button variant="secondary" onClick={cancelHandler}>{t("cancel")}</Button>
           </InputGroup>
           
         )} 
-        <span>{moment(comment?.createdAt).fromNow(true)}</span>
+        <span>{moment(comment?.createdAt).format("L")}</span>
         
-        <div className="more">
+        {currentUser.id===comment.userId && (<div className="more">
         <Dropdown>
           <Dropdown.Toggle><CgMoreVertical size={20}/></Dropdown.Toggle>
           <Dropdown.Menu>
-            <Dropdown.Item onClick={()=>setModalOpen(true)}>Delete</Dropdown.Item>
+            <Dropdown.Item onClick={()=>setModalOpen(true)}>{t("delete")}</Dropdown.Item>
           </Dropdown.Menu>
         </Dropdown>
-        </div>
+        </div>)}
           
         {reactedModal && <ReactModal subject={comment} reactionProp reacts={reacts.map(item=>getReaction(item))} users={users} totalReacts={comment.totalEmojiCount}  isModalOpen={reactedModal} close={()=>setReactedModal(false)} text="Reacted"/>}
         {modalOpen && <DeleteModal subject={t("comment")} deleteSubject={deleteCommentMutation} modalOpen={modalOpen} close={()=>setModalOpen(false)}/>}

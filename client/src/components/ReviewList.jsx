@@ -58,7 +58,8 @@ const ReviewList = ({reviews}) => {
         breakpoint:960,
         settings:{
           slidesToShow:2,
-          slidesToScroll:2
+          slidesToScroll:2,
+          dots:true
         }
       }
     ]}  autoplay autoplaySpeed={2000} infinite={false} className='cards' slidesToShow={4}>

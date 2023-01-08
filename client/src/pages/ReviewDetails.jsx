@@ -6,6 +6,7 @@ import ReactQuill from "react-quill"
 import {Image,Form, InputGroup, Button, OverlayTrigger, Tooltip} from "react-bootstrap"
 import Slider from "react-slick"
 import {FaComments,FaSmileBeam} from "react-icons/fa"
+import {AiFillFilePdf} from "react-icons/ai"
 import {FcRating} from "react-icons/fc"
 import {AiOutlineComment,AiOutlineHeart,AiFillHeart,AiOutlineEdit,AiOutlineDelete} from "react-icons/ai";
 import {useQuery,useMutation,useQueryClient} from "@tanstack/react-query"
@@ -13,9 +14,10 @@ import { useParams } from 'react-router-dom'
 import {useTranslation} from "react-i18next"
 import {ToastContainer,toast} from "react-toastify"
 import EmojiPicker from "emoji-picker-react"
-import {ClipLoader} from "react-spinners"
+import {BeatLoader, ClipLoader, DotLoader} from "react-spinners"
+import {PDFDownloadLink} from "@react-pdf/renderer"
 
-import {Comment, ReactModal} from '../components'
+import {Comment, ReactModal,PDFReview} from '../components'
 import { axiosFetch } from '../axios'
 import {getReview,getComments,setLastId,clearComments,deleteComment,editComment,reactComment,unreactComment} from "../redux/slices/review"
 import { keys } from '../env'
@@ -25,13 +27,17 @@ import { toastOptions } from '../utils/toastOptions'
 
 
 
+
 const ReviewDetails = () => {
   const navigate=useNavigate();
   const [modalOpen,setModalOpen]=useState(false);
   const [likeModal,setLikeModal]=useState(false);
   const [rateModal,setRatemodal]=useState(false);
+  const [typing,setTyping]=useState(false);
+  const [receiveType,setReceiveType]=useState(false);
   const client=useQueryClient();
-  const {currentReview,lastId,comments}=useSelector(state=>state.review)
+  const {currentReview,lastId,comments}=useSelector(state=>state.review);
+  const {isLight}=useSelector(state=>state.theme)
   const {socket}=useSelector(state=>state.socket)
   const {currentUser}=useSelector(state=>state.auth)
   const dispatch=useDispatch();
@@ -43,7 +49,7 @@ const ReviewDetails = () => {
   const pickerRef=useRef();
 
 
- 
+
 
     
 useEffect(()=>{
@@ -99,15 +105,31 @@ useEffect(()=>{
     console.log("rateraterate")
     refetch()
   })
+
+
+
+  socket?.on("receive_typing",(review)=>{
+    if(review===currentReview?.review.uuid) {
+      setReceiveType(true);
+    }
+      
+  })
+  socket?.on("receive_notyping",(review)=>{
+    if(review===currentReview?.review.uuid) {
+      setReceiveType(false);
+    }
+  })
  
 
-},[socket])
+},[socket,currentReview?.review.uuid,dispatch,refetch])
 
 useEffect(()=>{
   if(commentRef?.current) {
     commentRef?.current.scrollIntoView({behavior:"smooth"});
   }
 },[comment])
+
+
 
 
 const fetchComments=async()=>{
@@ -204,7 +226,25 @@ const emojiClickHandler=(emoji)=>{
   setComment(message);
 }
 
+const timeoutFunction=()=> {
+  setTyping(false);
+  socket.emit("noTyping",{sender:currentUser.uuid,review:currentReview?.review.uuid});
+}
 
+
+const keyUpHandler=()=>{
+console.log("vaime");
+  if(typing===false) {
+    setTyping(true);
+    socket.emit("typing",{sender:currentUser.uuid,review:currentReview?.review.uuid});
+    console.log(currentReview);
+    setTimeout(timeoutFunction,5000);
+  }else{
+    console.log(currentReview);
+    clearTimeout(timeoutFunction);
+    setTimeout(timeoutFunction,5000);
+  }
+}
 
 
   
@@ -261,7 +301,7 @@ const emojiClickHandler=(emoji)=>{
          {commentsCount!==comments.length &&  <Button variant='link' onClick={fetchComments}>View Previous comments</Button>} 
          {comments.length ? comments.map(({comment,users},index)=>(
            <div ref={index===comments.length-1?commentRef:null}  key={comment.id}><Comment socket={socket}  comment={{comment,users,reacts:Array.from(new Set(users.map(user=>user.reaction.emoji)))}}/></div>
-  )):<h1 className='text-center'>No Comments</h1>}
+  )):<h1 className='text-center'>{t("no_comments")}</h1>}
           
         </div>
         <hr/>
@@ -274,13 +314,16 @@ const emojiClickHandler=(emoji)=>{
             {showEmojiPicker && <div className="picker"><EmojiPicker   onEmojiClick={emojiClickHandler}  theme="light" /></div> } 
             </div>
            
-            <Form.Control value={comment} onChange={e=>setComment(e.target.value)} placeholder='Add a Comment...' type="text" />
+            <Form.Control value={comment} onKeyUp={keyUpHandler} onChange={e=>setComment(e.target.value)} placeholder='Add a Comment...' type="text" />
+            
             <Button onClick={()=>commentReview.mutate(comment)} type="submit">{t("send")}</Button>
             </InputGroup>
+            
 
             
            
           </div>
+          {receiveType && <span className='text-center'>Someone is typing <BeatLoader color={isLight?"black":"white"} size={10}/></span>}
         </div>
 
         </div>
@@ -292,11 +335,16 @@ const emojiClickHandler=(emoji)=>{
             {likesCount!==0 && <OverlayTrigger  placement="bottom" overlay={<Tooltip>Click to See who liked this review</Tooltip>}><span  onClick={()=>setLikeModal(true)} role="button" className='text-decoration-underline'>{likesCount}</span></OverlayTrigger>} {liked ? <AiFillHeart color="red" onClick={()=>likeReview.mutate()} role="button" size={40}/>  : <AiOutlineHeart  className='heartIcon' onClick={()=>likeReview.mutate()} role="button" size={40} /> }
             <span>{commentsCount} <AiOutlineComment  size={40}/></span>
           </div>
+          <PDFDownloadLink className='link' fileName={currentReview.review.uuid} document={<PDFReview review={currentReview.review}/>}>
+           {({loading})=>loading?"Loading Document...":<div className='d-flex align-items-center gap-1'><AiFillFilePdf size={30}/>{t("download")}</div>}
+      </PDFDownloadLink>
          {currentUser && <Rating allowFraction initialValue={myRating} onClick={(rating)=>rateReview.mutate(rating)}/> } 
+         {currentUser.id===currentReview.review.userId && (
           <div className="d-flex">
-            <Link className='link' to={`/update/${id}`}><AiOutlineEdit  role="button" size={40}/></Link>
-            <AiOutlineDelete onClick={()=>setModalOpen(true)} role="button" size={40}/>
-          </div>
+          <Link className='link' to={`/update/${id}`}><AiOutlineEdit  role="button" size={40}/></Link>
+          <AiOutlineDelete onClick={()=>setModalOpen(true)} role="button" size={40}/>
+        </div>
+         )} 
         </div>
        
       </div>
@@ -305,6 +353,7 @@ const emojiClickHandler=(emoji)=>{
       {rateModal && <ReactModal users={ratedUsers} reacts={[<FcRating/>]} rate isModalOpen={rateModal} close={()=>setRatemodal(false)} totalReacts={ratingsCount} text="Rated"/>}
       {likeModal && <ReactModal users={likedUsers} reacts={[<AiFillHeart color="red"/>]} like isModalOpen={likeModal} close={()=>setLikeModal(false)} totalReacts={likesCount} text="Liked"/>}
       {modalOpen && <DeleteModal subject={t("review")} modalOpen={modalOpen} close={()=>setModalOpen(false)} deleteSubject={deleteReview}  />}
+      
     </div>
   )
   }

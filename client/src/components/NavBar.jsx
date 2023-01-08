@@ -20,7 +20,7 @@ import {toastOptions} from ".././utils/toastOptions"
 import {clearNotification, logout} from "../redux/slices/auth"
 import { useState } from 'react'
 import {axiosFetch} from ".././axios"
-import { getSearchResults } from '../redux/slices/search'
+import { addSearchWord, getSearchResults } from '../redux/slices/search'
 import { addNotification, removeNotifications, replaceNotification } from '../redux/slices/notifications'
 import Notifications from './Notifications'
 import { addRequest, clearRequest} from '../redux/slices/requests'
@@ -44,8 +44,8 @@ const NavBar = () => {
   const [showRequests,setShowRequests]=useState(false);
   const lang=jsCookie.get("i18next")==="en"?"gb":jsCookie.get("i18next");
   const {t}=useTranslation();
-  const unviewedNots=notifications.filter(not=>not?.viewed===false);
-  const unviewedReqs=requests.filter(item=>item.viewed===false);
+  const unviewedNots=notifications?.filter(not=>not?.viewed===false);
+  const unviewedReqs=requests?.filter(item=>item.viewed===false);
 
   useEffect(()=>{
     socket?.on("receive_notify",(data)=>{
@@ -71,7 +71,15 @@ const NavBar = () => {
 
     
     
-  },[socket,dispatch,currentUser?.role])
+  },[socket,dispatch,currentUser?.role,currentUser])
+
+  const searchHandler=()=>{
+    dispatch(addSearchWord(search));
+    navigate("/search");
+  }
+ 
+     
+    
 
 
   const openNotification=useMutation(()=>{
@@ -118,15 +126,7 @@ const NavBar = () => {
 
  
 
-  const searchMutation=useMutation(()=>{
-      return axiosFetch.get(`/reviews/search/?text=${search}`)
-  },{
-    onSuccess:(({data})=>{
-      setSearch("")
-      navigate("/search");
-      dispatch(getSearchResults(data));
-    })
-  })
+
 
  
   
@@ -149,10 +149,46 @@ const NavBar = () => {
         <Nav.Item className='d-flex align-items-center'>
           <InputGroup>
           <Form.Control value={search||""} onChange={e=>setSearch(e.target.value)} className='searchInput' type="text" placeholder={t("nav_search")}/>
-          <Button onClick={()=>searchMutation.mutate()} disabled={!search} variant="secondary"><BsSearch size={20}/></Button>
+          <Button onClick={searchHandler} disabled={!search} variant="secondary"><BsSearch size={20}/></Button>
           </InputGroup>
         </Nav.Item>
-        <div onClick={()=>setShowDropDown(!showDropDown)} className="hamburger">
+        <Nav.Item className='endPart'>
+
+            <NavDropdown className='flag' title={<div className={`flag-icon flag-icon-${lang}`}></div>}>
+                {countries.map(country=>(
+                  <NavDropdown.Item key={country.country_code} onClick={()=>i18next.changeLanguage(country.locale)}>
+                    <div className={`flag-icon flag-icon-${country.country_code}`}></div>
+                  </NavDropdown.Item>
+                ))}
+              
+            </NavDropdown>
+         {currentUser&&currentUser?.role!=="admin" && (<> <div id="request" onClick={()=>openRequest.mutate()} className="notification position-relative">
+            <BsPeopleFill  className='icon' role="button" size={25}/>
+           {unviewedReqs.length>0 ? <div className='circle'>{unviewedReqs.length>0?unviewedReqs.length:""}</div>:""} 
+           {showRequests ? <Admissions setShowRequests={setShowRequests}/>:""}
+            </div>
+           
+          
+           <div id="notification" onClick={()=>openNotification.mutate()}    className="notification position-relative">
+            <BsBellFill className='icon' role="button" size={25}/>
+            {unviewedNots.length ? <div className='circle'>{unviewedNots.length?unviewedNots.length:""}</div>:""}
+            {showNots ? <Notifications setShowNots={setShowNots}/>:""}
+            </div></>)}  
+           
+            <OverlayTrigger  placement='bottom' overlay={<Tooltip>{t("create_review")}</Tooltip>} >
+            <Link to="/write">
+            <TbEditCircle className='icon write' role="button" size={25}/>
+            </Link>
+            </OverlayTrigger>
+          {currentUser ? (<NavDropdown className='prof' variant="link" title={<img className='userImg' src={currentUser.profUpdated?currentUser?.profileImg:`${keys.PF}${currentUser?.profileImg}`} alt=""/>}>
+              <NavDropdown.Item onClick={()=>window.location="/settings"}  >{t("settings")}</NavDropdown.Item>
+              <NavDropdown.Divider/>
+              <NavDropdown.Item onClick={logoutHandler}> <div><BiLogOut/><span>{t("logout")}</span></div> </NavDropdown.Item>
+            </NavDropdown>):(
+              <Link to="/login"><Button className='signin' >{t("login_title")}</Button></Link>
+            )}  
+        </Nav.Item>
+        <div onClick={()=>setShowDropDown(!showDropDown)} className="hamburger jsutify-self-end">
           <div className="line"></div>
           <div className="line"></div>
           <div className="line"></div>
@@ -168,8 +204,11 @@ const NavBar = () => {
               <div className='d-flex gap-2' size="sm">
                 {countries.filter(country=>country.country_code!==lang).map(c=><span onClick={()=>i18next.changeLanguage(c.locale)} className={` flag-icon flag-icon-${c.country_code}`}></span>)}
               </div>
+             
               </div>
-              <Button className='align-self-center'>Log Out</Button>
+              <Link className='link' to="/write"><div className='d-flex gap-1 mt-1'><strong>Write</strong><TbEditCircle/> </div></Link>
+              <Link className='link' to="/settings"><div className='d-flex gap-1 mt-1'><strong>Settings</strong><TbEditCircle/> </div></Link>
+              <Button onClick={logoutHandler} className='align-self-center'>Log Out</Button>
 
               
              
@@ -177,42 +216,7 @@ const NavBar = () => {
             </div>
          
         </div>
-        <Nav.Item className='endPart'>
-
-            <NavDropdown title={<div className={`flag-icon flag-icon-${lang}`}></div>}>
-                {countries.map(country=>(
-                  <NavDropdown.Item key={country.country_code} onClick={()=>i18next.changeLanguage(country.locale)}>
-                    <div className={`flag-icon flag-icon-${country.country_code}`}></div>
-                  </NavDropdown.Item>
-                ))}
-              
-            </NavDropdown>
-         {currentUser&&currentUser?.role!=="admin" && (<> <div onClick={()=>openRequest.mutate()} className="notification position-relative">
-            <BsPeopleFill className='icon' role="button" size={25}/>
-           {unviewedReqs.length>0 ? <div className='circle'>{unviewedReqs.length>0?unviewedReqs.length:""}</div>:""} 
-           {showRequests ? <Admissions/>:""}
-            </div>
-           
-          
-           <div onClick={()=>openNotification.mutate()}    className="notification position-relative">
-            <BsBellFill className='icon' role="button" size={25}/>
-            {unviewedNots.length ? <div className='circle'>{unviewedNots.length?unviewedNots.length:""}</div>:""}
-            {showNots ? <Notifications/>:""}
-            </div></>)}  
-           
-            <OverlayTrigger placement='bottom' overlay={<Tooltip>Write a Review</Tooltip>} >
-            <Link to="/write">
-            <TbEditCircle className='icon' role="button" size={25}/>
-            </Link>
-            </OverlayTrigger>
-          {currentUser ? (<NavDropdown variant="link" title={<img className='userImg' src={currentUser.profUpdated?currentUser?.profileImg:`${keys.PF}${currentUser?.profileImg}`} alt=""/>}>
-              <NavDropdown.Item onClick={()=>window.location="/settings"}  >{t("settings")}</NavDropdown.Item>
-              <NavDropdown.Divider/>
-              <NavDropdown.Item onClick={logoutHandler}> <div><BiLogOut/><span>{t("logout")}</span></div> </NavDropdown.Item>
-            </NavDropdown>):(
-              <Link to="/login"><Button className='signin' >Sign In</Button></Link>
-            )}  
-        </Nav.Item>
+        
       </Nav>
 
       

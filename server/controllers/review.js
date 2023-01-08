@@ -1,5 +1,5 @@
 import { StatusCodes } from "http-status-codes";
-import { Op } from "sequelize";
+import { Op, Sequelize } from "sequelize";
 import sequelize from "../config/Database.js";
 
 import { Review, ReviewImage, User, Rating,Like, Comment,Notification } from "../models/index.js";
@@ -365,41 +365,37 @@ export const getTags=async(req,res)=>{
 
 
 export const searchThroughApp=async(req,res)=>{
+  const {text}=req.query;
+  console.log(text,"req.body");
   let users=[];
   let reviews=[];
   let comments=[];
-  const {text}=req.query;
-    try{
-     users=await User.findAll({
-      where:sequelize.literal("MATCH(`firstName`,`lastName`,`email`,`bio`) AGAINST(:name IN BOOLEAN MODE)"),
+  try{
+    users=await User.findAll({
+      where:Sequelize.literal("MATCH(`firstName`,`lastName`,`email`,`bio`) AGAINST(:name IN BOOLEAN MODE)"),
       replacements:{
         name:`${text}*`
       },
-      attributes:{
-        exclude:["password"]
-      }
-     }) 
+      attributes:{exclude:["password"]}
+    })
 
-     reviews=await Review.findAll({
-      where:sequelize.literal("MATCH(`reviewName`,`reviewedPiece`,`group`,`tags`,`reviewText`) AGAINST(:name IN BOOLEAN MODE)"),  
+    reviews=await Review.findAll({
+      where:Sequelize.literal("MATCH(`reviewName`,`reviewedPiece`,`group`,`tags`,`reviewText`) AGAINST(:name IN BOOLEAN MODE)"),
       replacements:{
         name:`+${text}`
       },
       include:[{model:User,attributes:["firstName","lastName","uuid","id","profileImg","profUpdated"]},{model:ReviewImage}]
-     })
+    })
 
-     comments=await Comment.findAll(
-      {where:sequelize.literal("MATCH(`comment`) AGAINST(:name IN BOOLEAN MODE)"),
+    comments=await Comment.findAll({
+      where:Sequelize.literal("MATCH(`comment`) AGAINST(:name IN BOOLEAN MODE)"),
       replacements:{
         name:`+${text}`
       },
-      include:[{model:User,attributes:["firstName","lastName","profileImg","profUpdated","uuid","id"]},{model:Review,include:[{model:User,attributes:["firstName","lastName","profileImg","profUpdated","uuid","id"]},{model:ReviewImage}]}]
-    },
-      
-     )
-      return res.status(StatusCodes.OK).json({users,reviews,comments})
-    }catch(err) {
-      console.log(err);
-      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
-    }
+      include:[{model:User,attributes:["firstName","lastName","uuid","id","profileImg","profUpdated"]},{model:Review,include:[{model:User,attributes:["firstName","lastName","uuid","id","profileImg","profUpdated"]},{model:ReviewImage}]}]
+    })
+    return res.status(StatusCodes.OK).json({users,reviews,comments});
+  }catch(err) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
+  }
 }

@@ -109,7 +109,7 @@ const AuthForm = ({ isRegister, admin }) => {
       {isRegister && (
         <>
           <Form.Group className="mb-2">
-            <Form.Label>{t("first_name")}</Form.Label>
+            <Form.Label>{t("firstName")}</Form.Label>
             <Form.Control
               value={values.firstName}
               isInvalid={errors.firstName}
@@ -120,7 +120,7 @@ const AuthForm = ({ isRegister, admin }) => {
             {errors.firstName && <p className="error">{t(errors.firstName)}</p>}
           </Form.Group>
           <Form.Group className="mb-2">
-            <Form.Label>{t("last_name")}</Form.Label>
+            <Form.Label>{t("lastName")}</Form.Label>
             <Form.Control
               value={values.lastName}
               isInvalid={errors.lastName}
@@ -241,7 +241,7 @@ const AuthForm = ({ isRegister, admin }) => {
         {(isLoading||storeLoading) ? <Spinner/> : (isRegister ? t("register_title") : t("login_title")) }
       </Button>
       {storeErrors? (storeErrors.delete?<RecoverRequest email={values.email} show={storeErrors.delete} onHide={()=>dispatch(cleanupErrors())}/>:<p className="error">{storeErrors.msg}</p>):""}
-      {(!isRegister && !admin && <Button onClick={()=>setForgetModal(true)}  className="forget" variant="link">Forgot Password?</Button>) }
+      {(!isRegister && !admin && <Button onClick={()=>setForgetModal(true)}  className="forget" variant="link">{t("forgot_password")}</Button>) }
       <div className="quest">
         {isRegister ? t("already_member") : t("not_member")}{" "}
         <Link onClick={cleanup} to={isRegister ? "/login" : "/register"}>

@@ -141,6 +141,21 @@ User.init({
     status:{
         type:DataTypes.STRING,
         defaultValue:"active"
+    },
+    twoFA:{
+        type:DataTypes.BOOLEAN,
+        defaultValue:false
+    },
+    twoFACode:{
+        type:DataTypes.STRING,
+        
+    },
+    twoFACodeExpire:{
+        type:DataTypes.DATE
+    },
+    phone:{
+        type:DataTypes.STRING,
+        
     }
 },{sequelize,modelName:"user"})
 

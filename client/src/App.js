@@ -20,6 +20,7 @@ import {
   PasswordReset,
   SearchResults,
   AdminPage,
+  TwoFactorAuth,
 } from "./pages";
 import { useDispatch, useSelector } from "react-redux";
 import { io } from "socket.io-client";
@@ -87,6 +88,11 @@ const router = createBrowserRouter([
       {
         path: "/passwordReset/:resetToken",
         element: <PasswordReset />,
+      },
+      {
+        path:"/twofactor/",
+        element:<TwoFactorAuth/>
+
       },
       {
         path: "/search",

@@ -21,7 +21,7 @@ const AdminModal = ({modalOpen,close,setValues,setErrors}) => {
   return (
    <Modal show={modalOpen} onHide={close}>
     <Modal.Header>{t("admin_modal_header")}</Modal.Header>
-    <Modal.Body>{t("admin_modal_body")}</Modal.Body>
+    <Modal.Body>{t("admin_modal_body",{modalOpen})}</Modal.Body>
     <Modal.Footer>
         <Button onClick={accept}>{t("modal_accept")}</Button>
     </Modal.Footer>

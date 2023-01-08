@@ -1,5 +1,5 @@
 import express from "express"
-import { addBio,  getUser, getUserNotifications, getUserRequests, makeAdminRequest, makeUserRequest, openNotification, openRequests, updateUser } from "../controllers/user.js";
+import { addBio,  confirmVerification,  getUser, getUserNotifications, getUserRequests, makeAdminRequest, makeUserRequest, openNotification, openRequests, sendVerificationCode, updateUser } from "../controllers/user.js";
 import {checkAuth} from "../middleware/checkAuth.js"
 
 
@@ -7,6 +7,8 @@ const router=express.Router();
 
 
 router.post("/add",checkAuth,addBio);
+router.post("/send",checkAuth,sendVerificationCode);
+router.post("/confirm",checkAuth,confirmVerification);
 router.post("/userrequest",makeUserRequest);
 router.post("/request",checkAuth,makeAdminRequest);
 router.get("/notifications",checkAuth,getUserNotifications);

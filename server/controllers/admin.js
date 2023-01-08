@@ -40,14 +40,15 @@ export const blockUnblockOrDelete=async(req,res)=>{
 }
 
 export const makeAdminOrNonAdmin=async(req,res)=>{
+    const {role}=req.query;
     try{
-    await User.update({role:req.query.role},{
-        where:{
-            id:{
-                [Op.in]:req.body.userIds
-            }
-        }
-    })
+    
+    const users=await User.update({role,adminPin:role==="admin"?nanoid():""},{where:{
+        id:{[Op.in]:req.body.userIds}
+    }})
+
+    console.log(users,"usersebilo");
+    
     return res.status(StatusCodes.OK).json({msg:"users_roles_updated"});
     }catch(err) {
         return res.status(StatusCodes.OK).json(err);

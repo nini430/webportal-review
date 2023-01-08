@@ -1,10 +1,17 @@
 import { StatusCodes } from "http-status-codes"
 import bcrypt from "bcryptjs"
 import {Op} from "sequelize"
+import twillio from 'twilio'
+import crypto from "crypto"
+import jwt from "jsonwebtoken"
+
+
 
 import {User,Review,ReviewImage, Request,Notification} from "../models/index.js"
+import {keys} from "../env.js"
 
 
+const client=twillio(keys.ACCOUNT_SID,keys.AUTH_TOKEN);
 
 
 export const getUser=async(req,res)=>{
@@ -130,6 +137,62 @@ export const openRequests=async(req,res)=>{
     try{
     await Request.update({viewed:true},{where:{userId:req.userId}});
     return res.status(StatusCodes.OK).json({msg:"request_viewed"});
+    }catch(err) {
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
+    }
+}
+
+export const sendVerificationCode=async(req,res)=>{
+    try{
+    const {phone}=req.body;
+    const user=await User.findByPk(req.userId);
+    user.twoFACode=crypto.randomBytes(7).toString("hex");
+    user.twoFACodeExpire=Date.now()+3*(60*1000);
+    
+    const savedUser=await user.save();
+    client.messages.create({
+        from:keys.TWILLIO_FROM,
+        to:"+"+phone,
+        body:`This is your verification code ${savedUser.twoFACode}`
+    }).catch(err=>console.log(err)).then(msg=>console.log(msg))
+    return res.status(StatusCodes.OK).json({msg:"message_sent"});
+    }catch(err) {
+        console.log(err);
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
+    }
+}
+
+export const confirmVerification=async(req,res)=>{
+    try{
+    const {code,phone,email}=req.body;
+    let user;
+    if(!email) {
+        user=await User.findByPk(req.userId,{attributes:{exclude:["password"]}});
+    }else{
+        user=await User.findOne({where:{email},attributes:{exclude:["password"]}})
+    }
+    
+    if(user.twoFACodeExpire<Date.now()) {
+        return res.status(StatusCodes.BAD_REQUEST).json({msg:"code_expired"});
+    }
+    console.log(user.twoFACode,"raia agi");
+    console.log(req.body,"da ahi?")
+    if(user.twoFACode!==code) {
+        return res.status(StatusCodes.BAD_REQUEST).json({msg:"incorrect_code"})
+    }
+    if(!email) {
+        user.twoFA=true;
+        user.phone=phone;
+        await user.save();
+        return res.status(StatusCodes.OK).json({msg:"2factor_verification_enabled"});
+    }else{
+        const notifications=await Notification.findAll({where:{userId:user.id},order:[["updatedAt","DESC"]]});
+        const requests=await Request.findAll({where:{userId:user.id},status:{[Op.not]:"pending"}});
+        const token=jwt.sign({id:user.id},keys.JWT_SECRET);
+
+        return res.cookie("accessToken",token,{httpOnly:true}).status(StatusCodes.OK).json({user,notifications,requests})
+    }
+   
     }catch(err) {
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
     }

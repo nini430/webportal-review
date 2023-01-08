@@ -1,6 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import React, { useState } from 'react'
 import { Button, ButtonGroup, Form } from 'react-bootstrap';
+import {useTranslation} from "react-i18next"
 import {TiEdit} from "react-icons/ti"
 import { useDispatch, useSelector } from 'react-redux';
 import { axiosFetch } from '../axios';
@@ -9,6 +10,7 @@ import UpdatePasswordModal from './UpdatePasswordModal';
 
 
 const Parameter = ({label,accessor,value,isPassword}) => {
+  const {t}=useTranslation();
   const {currentUser}=useSelector(state=>state.auth);
   const [modalOpen,setModalOpen]=useState(false);
   const [updatedValue,setUpdatedValue]=useState(value);
@@ -28,8 +30,8 @@ const Parameter = ({label,accessor,value,isPassword}) => {
   })
   return (
     <>
-    <p><strong>{label}: </strong> {inEditMode? <Form.Control onChange={e=>setUpdatedValue(e.target.value)} type="text" value={updatedValue}/>:value}
-   {!inEditMode? <TiEdit onClick={isPassword?()=>setModalOpen(true):()=>setInEditMode(true)} role="button" size={25}/> : <ButtonGroup><Button onClick={()=>updateMutation.mutate({[accessor]:updatedValue})} variant="success">Save</Button><Button onClick={cancelHandler} variant="secondary">Cancel</Button></ButtonGroup> } 
+    <p><strong>{t(accessor)}: </strong> {inEditMode? <Form.Control onChange={e=>setUpdatedValue(e.target.value)} type="text" value={updatedValue}/>:value}
+   {!inEditMode? <TiEdit onClick={isPassword?()=>setModalOpen(true):()=>setInEditMode(true)} role="button" size={25}/> : <ButtonGroup><Button onClick={()=>updateMutation.mutate({[accessor]:updatedValue})} variant="success">{t("save")}</Button><Button onClick={cancelHandler} variant="secondary">{t("cancel")}</Button></ButtonGroup> } 
     </p>
     {modalOpen && <UpdatePasswordModal show={modalOpen} close={()=>setModalOpen(false)}/>}
     </>

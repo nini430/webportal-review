@@ -9,6 +9,7 @@ import { axiosFetch } from '../axios';
 
 import {ToastContainer,toast} from "react-toastify"
 import { toastOptions } from '../utils/toastOptions';
+import { Link } from 'react-router-dom';
 
 const Settings = () => {
     const {currentUser}=useSelector(state=>state.auth);
@@ -36,6 +37,7 @@ const Settings = () => {
         <Parameter label="Last Name" accessor="lastName" value={currentUser.lastName}  />
         {!currentUser.withSocials && <Parameter label="Password" accessor="password" value="*******" isPassword  /> }
       </div>
+      <Link to="/twofactor" className='link'><Button className='mt-2'>Set Up 2FA Authorization</Button></Link>
       <ToastContainer/>
    </div>
   )
