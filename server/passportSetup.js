@@ -2,18 +2,16 @@ import GoogleStrategy from "passport-google-oauth20";
 import TwitterStrategy from "passport-twitter";
 import passport from "passport";
 
-import { keys } from "./env.js";
 import { User } from "./models/index.js";
 
 passport.use(
   new GoogleStrategy.Strategy(
     {
-      clientID: keys.GOOGLE_CLIENT_ID,
-      clientSecret: keys.GOOGLE_CLIENT_SECRET,
+      clientID: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       callbackURL: "/auth/google/callback",
     },
     async (accessToken, refreshToken, profile, cb) => {
-      
       const newUser = await User.findOrCreate({
         where: { email: profile._json.email },
         defaults: {
@@ -25,8 +23,7 @@ passport.use(
           gender: profile._json.gender || "male",
           withSocials: true,
           password: "_",
-          role:"user",
-         
+          role: "user",
         },
       });
       cb(null, newUser);
@@ -34,36 +31,34 @@ passport.use(
   )
 );
 
-passport.use(new TwitterStrategy.Strategy({
-  consumerKey:keys.TWITTER_CLIENT_ID,
-  consumerSecret:keys.TWITTER_CLIENT_SECRET,
-  callbackURL:"/auth/twitter/callback",
-  includeEmail:true
-},
-async(accessToken,refreshToken,profile,cb)=>{
-
-  const user=await User.findOrCreate({where:{email:profile._json.email},defaults:{
-    firstName:profile._json.name.split(" ")[0],
-    lastName:profile._json.name.split(" ")[1],
-    profileImg:profile._json.profile_image_url,
-    gender:profile.gender||"male",
-    email:profile._json.email,
-    role:"user",
-    profUpdated:true,
-    password:"_",
-    withSocials:true
-  }})
-  
-      
-  cb(null,user);
-      
+passport.use(
+  new TwitterStrategy.Strategy(
+    {
+      consumerKey: process.env.TWITTER_CLIENT_ID,
+      consumerSecret: process.env.TWITTER_CLIENT_SECRET,
+      callbackURL: "/auth/twitter/callback",
+      includeEmail: true,
     },
-    
-    
+    async (accessToken, refreshToken, profile, cb) => {
+      const user = await User.findOrCreate({
+        where: { email: profile._json.email },
+        defaults: {
+          firstName: profile._json.name.split(" ")[0],
+          lastName: profile._json.name.split(" ")[1],
+          profileImg: profile._json.profile_image_url,
+          gender: profile.gender || "male",
+          email: profile._json.email,
+          role: "user",
+          profUpdated: true,
+          password: "_",
+          withSocials: true,
+        },
+      });
 
-    
-
-))
+      cb(null, user);
+    }
+  )
+);
 
 passport.serializeUser((user, cb) => {
   cb(null, user);

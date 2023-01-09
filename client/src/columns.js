@@ -9,11 +9,11 @@ import {Button,Image} from "react-bootstrap"
 
 export const COLUMNS = [
   {
-    Header: "Review Name",
+    Header: "review Name",
     accessor: "reviewName",
   },
   {
-    Header: "reviewed_piece",
+    Header: "reviewed Piece",
     accessor: "reviewedPiece",
   },
   {
@@ -30,7 +30,7 @@ export const COLUMNS = [
         .join(","),
   },
   {
-    Header: "review_text",
+    Header: "review Text",
     accessor: "reviewText",
     Cell: ({ value }) =>
       getText(value).length > 40
@@ -38,7 +38,7 @@ export const COLUMNS = [
         : getText(value),
   },
   {
-    Header: "images",
+    Header: "Images",
     accessor: "reviewImages",
     Cell: ({ value }) => (
       value.length ? (
@@ -55,33 +55,33 @@ export const COLUMNS = [
   },
 
   {
-    Header: "grade",
+    Header: "Grade",
     accessor: "grade",
   },
   {
-    Header: "average_rating",
+    Header: "average Rating",
     accessor: "averageRating",
 
   },
 
   {
-    Header: "ratings_count",
+    Header: "rating Count",
     accessor: "ratingsCount",
    
   },
   {
-    Header: "likes_count",
+    Header: "likes Count",
     accessor: "likesCount",
 
   },
   {
-    Header: "comments_count",
+    Header: "comments Count",
     accessor: "commentsCount",
 
   },
 
   {
-    Header: "created_at",
+    Header: "created At",
     accessor: "createdAt",
     Cell: ({ value }) => moment(value).format("L"),
   },

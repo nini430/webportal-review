@@ -17,13 +17,11 @@ export const getAllUsers=async(req,res)=>{
     return res.status(StatusCodes.OK).json(users);
     
     }catch(err) {
-        console.log(err);
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
     }
 }
 
 export const blockUnblockOrDelete=async(req,res)=>{
-    console.log(req.body.userIds);
     try{
         await User.update({status:req.query.status},{where:{
             id:{
@@ -34,7 +32,6 @@ export const blockUnblockOrDelete=async(req,res)=>{
         
         return res.status(StatusCodes.OK).json({msg:"users_statuses_updated"});
     }catch(err) {
-        console.log(err);
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
     }
 }
@@ -47,7 +44,7 @@ export const makeAdminOrNonAdmin=async(req,res)=>{
         id:{[Op.in]:req.body.userIds}
     }})
 
-    console.log(users,"usersebilo");
+
     
     return res.status(StatusCodes.OK).json({msg:"users_roles_updated"});
     }catch(err) {
@@ -78,7 +75,7 @@ export const respondToRequest=async(req,res)=>{
         user.adminPin=nanoid();
         user.role="admin";
       savedUser=await user.save();
-       console.log(savedUser.toJSON(),"saved saved");
+      
     }
 
     if(status==="fulfilled" && position==="user") {
@@ -103,7 +100,6 @@ export const respondToRequest=async(req,res)=>{
 
     return res.status(StatusCodes.OK).json({request,adminPin:savedUser?.adminPin});
     }catch(err) {
-        console.log(err);
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
     }
 }

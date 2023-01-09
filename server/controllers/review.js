@@ -17,6 +17,7 @@ export const getReviews = async (req, res) => {
   const { attribute } = req.query;
   try {
     const reviews = await Review.findAll({
+      
       attributes: [
         "reviewName",
         "reviewedPiece",
@@ -84,10 +85,8 @@ export const addReview = async (req, res) => {
     const user = await newReview.getUser();
     user.numberOfReviews++;
     await user.save();
-    console.log(user);
     return res.status(StatusCodes.CREATED).json({ msg: "review_created" });
   } catch (err) {
-    console.log(err);
     let errors = {};
     if (err.name == "SequelizeValidationError") {
       err.errors.forEach((error) => {
@@ -101,7 +100,6 @@ export const addReview = async (req, res) => {
 };
 
 export const getReview = async (req, res) => {
-  const { userId } = req.query;
   let ratedUsers=[];
   let likedUsers=[];
 
@@ -127,7 +125,7 @@ export const getReview = async (req, res) => {
         .status(StatusCodes.NOT_FOUND)
         .json({ msg: "review_not_found" });
     
-    if(userId) {
+   
         ratedUsers=await Rating.findAll({where:{reviewId:review.id},attributes:["userId"]});
         ratedUsers=await User.findAll({
           where:{
@@ -158,11 +156,11 @@ export const getReview = async (req, res) => {
 
         likedUsers=likedUsers.map(user=>({user}))
 
-    }
+    
 
     return res.status(StatusCodes.OK).json({ review,ratedUsers,likedUsers });
   } catch (err) {
-    console.log(err);
+
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
   }
 };
@@ -225,14 +223,13 @@ export const rateReview = async (req, res) => {
     })
   
     averageSum=averageSum[0]?.toJSON().average_sum||0;
-    console.log(averageSum);
-    console.log(+averageSum/user.numberOfReviews);
+    
     user.ratingNumber=(+averageSum/user.numberOfReviews);
     await user.save();
     
     return res.status(StatusCodes.OK).json({msg:"review_rated",notification,user:author.uuid,modified:rated});
     }catch(err) {
-      console.log(err);
+   
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
     }
 }
@@ -255,14 +252,14 @@ export const likeReview=async(req,res)=>{
       await liked.destroy();
       review.likesCount--;
     }else{
-      console.log("elsiko")
+  
       await Like.create({
         reviewId:review.id,
         userId:req.userId
       })
       if(user.id!==likedBy.id) {
       const notifi=await Notification.findOne({where:{userId:user.id,subjectId:review.uuid,madeBy:likedBy.uuid,reaction:"like"}});
-      console.log(notifi);
+     
       if(!notifi) {
         notification=await Notification.create({
           userId:user.id,
@@ -282,7 +279,7 @@ export const likeReview=async(req,res)=>{
     await review.save();
     return res.status(StatusCodes.OK).json({msg:"review_like_update",user:user.uuid,notification,delete:liked});
     }catch(err) {
-      console.log(err);
+   
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
     }
 }
@@ -331,7 +328,7 @@ export const editReview=async(req,res)=>{
 
       return res.status(StatusCodes.OK).json({msg:"review_updated"});
     }catch(err) {
-      console.log(err);
+  
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
     }
 }
@@ -366,7 +363,7 @@ export const getTags=async(req,res)=>{
 
 export const searchThroughApp=async(req,res)=>{
   const {text}=req.query;
-  console.log(text,"req.body");
+
   let users=[];
   let reviews=[];
   let comments=[];

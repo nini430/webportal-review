@@ -4,13 +4,12 @@ import jwt from "jsonwebtoken";
 import crypto from "crypto"
 import twilio from "twilio";
 
-import {User,Review,ReviewImage,React,Request,Notification} from "../models/index.js";
+import {User,Request,Notification} from "../models/index.js";
 import { loginValidator } from "../utils/validators.js";
-import {keys} from "../env.js"
 import { sendEmail } from "../utils/sendEmail.js";
 import { Op } from "sequelize";
 
-const client=twilio(keys.ACCOUNT_SID,keys.AUTH_TOKEN);
+const client=twilio(process.env.ACCOUNT_SID,process.env.AUTH_TOKEN);
 export const registerUser = async (req, res) => {
   let {
     firstName,
@@ -54,7 +53,7 @@ export const registerUser = async (req, res) => {
 
     return res.status(StatusCodes.CREATED).json({ msg: "user_created",admin:newUser.adminPin });
   } catch (err) {
-    console.log(err);
+
     let errors={};
     if(err.name==="SequelizeValidationError") {
         err.errors.forEach(error=>{
@@ -67,16 +66,14 @@ export const registerUser = async (req, res) => {
 };
 
 export const loginUser=async(req,res)=>{
-  console.log(req.body,"Body")
+ 
   let requests;
   const {email,password,adminPin,admin}=req.body;
   const {isInvalid,errors}=loginValidator(admin?{email,password,adminPin}:{email,password});
   if(isInvalid) return res.status(StatusCodes.BAD_REQUEST).json(errors);
   let user;
-  console.log(admin,"admim")
   try{
    if(admin) {
-    console.log("admini sworia")
     user=await User.findOne({where:{email,adminPin}});
    }else{
     user=await User.findOne({where:{email}});
@@ -107,7 +104,7 @@ export const loginUser=async(req,res)=>{
   const savedUser=await user.save();
   if(user.twoFA) {
      client.messages.create({
-      from:keys.TWILLIO_FROM,
+      from:process.env.TWILLIO_FROM,
       to:"+"+user.phone,
       body:`This is your code verification code ${savedUser.twoFACode}`
      })
@@ -115,7 +112,7 @@ export const loginUser=async(req,res)=>{
      return res.status(StatusCodes.OK).json({twoFA:true,success:true})
   }
 
-   const token=jwt.sign({id:user.id},keys.JWT_SECRET);
+   const token=jwt.sign({id:user.id},process.env.JWT_SECRET);
 
    const {password,...others}=user.toJSON();
    const notifications=await Notification.findAll({where:{userId:user.id},order:[["updatedAt","DESC"]]});
@@ -124,7 +121,7 @@ export const loginUser=async(req,res)=>{
    }
    return res.cookie("accessToken",token,{httpOnly:true,path:"/"}).status(StatusCodes.OK).json({user:others,notifications,requests});
   }catch(err) {
-    console.log(err);
+
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
   }
 }
@@ -160,7 +157,7 @@ export const forgotPassword=async(req,res)=>{
       
      
     }catch(err) {
-      console.log(err);
+   
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
     }
 }

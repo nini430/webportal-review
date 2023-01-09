@@ -1,7 +1,6 @@
 import React from 'react'
 import { useEffect } from 'react';
 import {useSelector,useDispatch} from "react-redux"
-import {useNavigate} from "react-router-dom"
 import { Bio, ReviewList,TagCloudComponent } from '../components';
 import {useQuery} from "@tanstack/react-query"
 import { axiosFetch } from '../axios';
@@ -12,17 +11,15 @@ import { getUser } from '../redux/slices/auth';
 const Home = () => {
   const dispatch=useDispatch();
   const {t}=useTranslation();
-  const navigate=useNavigate();
   const {currentUser}=useSelector(state=>state.auth);
 
   useEffect(()=>{
-    console.log("kaira")
+
     const fetchUser=async()=>{
-      const response=await axios.get("http://localhost:8000/auth/login/success",{withCredentials:true});
+      const response=await axios.get("https://webportal1.herokuapp.com/auth/login/success",{withCredentials:true});
       return response.data;
     }
     fetchUser().then(data=>{
-      console.log(data);
       dispatch(getUser(data.user[0]))
     })
   },[dispatch])

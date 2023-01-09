@@ -8,19 +8,19 @@ import jwt from "jsonwebtoken"
 
 
 import {User,Review,ReviewImage, Request,Notification} from "../models/index.js"
-import {keys} from "../env.js"
 
 
-const client=twillio(keys.ACCOUNT_SID,keys.AUTH_TOKEN);
+
+const client=twillio(process.env.ACCOUNT_SID,process.env.AUTH_TOKEN);
 
 
 export const getUser=async(req,res)=>{
     try{
         const user=await User.findOne({where:{uuid:req.params.id},attributes:{exclude:["password"]},include:[{model:Review,include:[{model:ReviewImage}]}]})
-    console.log(user);
+   
     return res.status(StatusCodes.OK).json(user);
     }catch(err) {
-        console.log(err);
+   
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
     }
 }
@@ -51,7 +51,7 @@ export const updateUser=async(req,res)=>{
         const {password,...other}=user.toJSON();
         return res.status(StatusCodes.OK).json(other);
         }catch(err) {
-            console.log(err);
+         
             return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
         }
 }
@@ -78,7 +78,7 @@ export const makeAdminRequest=async(req,res)=>{
     })
     return res.status(StatusCodes.CREATED).json({msg:"request_sent"});
     }catch(err) {
-        console.log(err);
+    
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
     }
 }
@@ -96,7 +96,7 @@ export const makeUserRequest=async(req,res)=>{
         })
         return res.status(StatusCodes.CREATED).json({msg:"request_sent"})
         }catch(err) {
-            console.log(err);
+        
             return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
         }
 }
@@ -106,7 +106,7 @@ export const makeUserRequest=async(req,res)=>{
 export const getUserNotifications=async(req,res)=>{
     try{
     const notifications=await Notification.findAll({where:{userId:req.userId},order:[["updatedAt","DESC"]]});
-    console.log(notifications)
+
     return res.status(StatusCodes.OK).json(notifications);
     }catch(err) {
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
@@ -118,7 +118,7 @@ export const getUserRequests=async(req,res)=>{
     const requests=await Request.findAll({where:{userId:req.userId,status:{[Op.not]:"pending"}},order:[["createdAt","DESC"]]});
     return res.status(StatusCodes.OK).json(requests);
     }catch(err) {
-        console.log(err);
+    
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
     }
 }
@@ -151,13 +151,13 @@ export const sendVerificationCode=async(req,res)=>{
     
     const savedUser=await user.save();
     client.messages.create({
-        from:keys.TWILLIO_FROM,
+        from:process.env.TWILLIO_FROM,
         to:"+"+phone,
         body:`This is your verification code ${savedUser.twoFACode}`
-    }).catch(err=>console.log(err)).then(msg=>console.log(msg))
+    })
     return res.status(StatusCodes.OK).json({msg:"message_sent"});
     }catch(err) {
-        console.log(err);
+    
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
     }
 }
@@ -175,8 +175,7 @@ export const confirmVerification=async(req,res)=>{
     if(user.twoFACodeExpire<Date.now()) {
         return res.status(StatusCodes.BAD_REQUEST).json({msg:"code_expired"});
     }
-    console.log(user.twoFACode,"raia agi");
-    console.log(req.body,"da ahi?")
+ 
     if(user.twoFACode!==code) {
         return res.status(StatusCodes.BAD_REQUEST).json({msg:"incorrect_code"})
     }
@@ -188,7 +187,7 @@ export const confirmVerification=async(req,res)=>{
     }else{
         const notifications=await Notification.findAll({where:{userId:user.id},order:[["updatedAt","DESC"]]});
         const requests=await Request.findAll({where:{userId:user.id},status:{[Op.not]:"pending"}});
-        const token=jwt.sign({id:user.id},keys.JWT_SECRET);
+        const token=jwt.sign({id:user.id},process.env.JWT_SECRET);
 
         return res.cookie("accessToken",token,{httpOnly:true}).status(StatusCodes.OK).json({user,notifications,requests})
     }
