@@ -6,7 +6,6 @@ import {
   getUserNotifications,
   getUserRequests,
   makeAdminRequest,
-  makeUserRequest,
   openNotification,
   openRequests,
   sendVerificationCode,
@@ -19,7 +18,6 @@ const router = express.Router();
 router.post("/add", checkAuth, addBio);
 router.post("/send", checkAuth, sendVerificationCode);
 router.post("/confirm", checkAuth, confirmVerification);
-router.post("/userrequest", makeUserRequest);
 router.post("/request", checkAuth, makeAdminRequest);
 router.get("/notifications", checkAuth, getUserNotifications);
 router.get("/requests", checkAuth, getUserRequests);

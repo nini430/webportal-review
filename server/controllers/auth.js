@@ -5,8 +5,7 @@ import crypto from "crypto"
 import twilio from "twilio";
 
 import {User,Request,Notification} from "../models/index.js";
-import { loginValidator } from "../utils/validators.js";
-import { sendEmail } from "../utils/sendEmail.js";
+import { loginValidator } from "../utils/validators.js"
 import { Op } from "sequelize";
 
 const client=twilio(process.env.ACCOUNT_SID,process.env.AUTH_TOKEN);
@@ -115,11 +114,11 @@ export const loginUser=async(req,res)=>{
    const token=jwt.sign({id:user.id},process.env.JWT_SECRET);
 
    const {password,...others}=user.toJSON();
-   const notifications=await Notification.findAll({where:{userId:user.id},order:[["updatedAt","DESC"]]});
+   const notifications=await Notification.findAll({where:{userId:user.id},order:[["updatedAt","DESC"]]})
    if(req.role!=="admin") {
     requests=await Request.findAll({where:{status:{[Op.not]:"pending"},userId:user.id},order:[["createdAt","DESC"]]})
    }
-   return res.cookie("accessToken",token,{httpOnly:true,path:"/"}).status(StatusCodes.OK).json({user:others,notifications,requests});
+   return res.cookie("accessToken",token,{httpOnly:true,secure:true,sameSite:"none"}).status(StatusCodes.OK).json({user:others,notifications,requests});
   }catch(err) {
 
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
@@ -129,59 +128,9 @@ export const loginUser=async(req,res)=>{
 
 export const logoutUser=async(req,res)=>{
   return res.clearCookie("accessToken",{
-    sameSite:"none"
+    sameSite:"none",
+    secure:true
   }).status(200).json({msg:"logged_out"})
 }
 
-export const forgotPassword=async(req,res)=>{
-  const {email}=req.body;
-  let user;
-    try{
-      user=await User.findOne({where:{email}});
-      if(!user) return res.status(StatusCodes.NOT_FOUND).json({email:"user_not_found"});
-      const resetToken=user.getResetPasswordToken();
-      await user.save();
-      const client_url=`http://localhost:3000/passwordReset/${resetToken}`
-      const message=`
-      <h1>You have requested Password Reset</h1>
-      <p> Please follow the link below to reset your password </p>
-      <a href=${client_url} clicktracking=off>${client_url}</a>
-      `
-    
-        await sendEmail({
-          to:user.email,
-          subject:'Password Reset Request',
-          text:message
-        })
-        return res.status(StatusCodes.OK).json({msg:"email_sent"})
-      
-     
-    }catch(err) {
-   
-      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
-    }
-}
 
-export const resetPassword=async(req,res)=>{
-  const {resetToken}=req.params;
-  const {newPassword}=req.body;
-  const resetPasswordToken=crypto.createHash("sha256").update(resetToken).digest("hex");
-  try{
-    const user=await User.findOne({
-      where:{
-        resetPasswordToken,
-        resetPasswordExpire:{
-          [Op.gt]:Date.now()
-        }
-      }
-    })
-    if(!user) return res.status(StatusCodes.BAD_REQUEST).json({msg:"invalid/expired token"});
-    const salt=await bcrypt.genSalt(12);
-    const newPass=await bcrypt.hash(newPassword,salt);
-    user.password=newPass;
-    await user.save();
-    return res.status(StatusCodes.OK).json({msg:"password_updated"});
-  }catch(err) {
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
-  }
-}
